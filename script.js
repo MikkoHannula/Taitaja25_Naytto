@@ -416,6 +416,7 @@ function loadGame() {
             <div class="game-header">
                 <div class="progress">Kysymys: <span id="questionNumber">1</span>/${gameState.questionCount}</div>
                 <div class="score">Pisteet: <span id="scoreDisplay">0</span></div>
+                <button id="exitGame" class="btn-secondary">Poistu</button>
             </div>
             <div id="questionContainer">
                 <p>Ladataan kysymyksiä...</p>
@@ -436,8 +437,14 @@ function loadGame() {
         .game-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
             font-weight: 500;
+        }
+
+        #exitGame {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
         }
 
         #questionContainer {
@@ -445,6 +452,13 @@ function loadGame() {
         }
     `;
     document.head.appendChild(style);
+
+    // Add exit button functionality
+    document.getElementById('exitGame').addEventListener('click', () => {
+        if (confirm('Haluatko varmasti poistua? Edistymistäsi ei tallenneta.')) {
+            window.location.href = 'index.html';
+        }
+    });
 
     // Load questions for the selected category
     gameState.questions = getRandomQuestions(mockQuestions[gameState.category], gameState.questionCount);

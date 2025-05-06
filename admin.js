@@ -31,31 +31,191 @@ document.querySelectorAll('.tab-button').forEach(button => {
 // Question management
 function loadQuestions() {
     const questionList = document.getElementById('questionList');
-    let allQuestions = [];
     
-    // Flatten all questions from categories
-    Object.keys(questions).forEach(categoryId => {
-        questions[categoryId].forEach(question => {
-            allQuestions.push({ ...question, categoryId });
-        });
-    });
-
-    questionList.innerHTML = allQuestions.map((question, index) => `
-        <div class="question-item">
-            <h3>${question.question}</h3>
-            <div class="options">
-                ${question.options.map((option, optIndex) => `
-                    <div class="option ${optIndex === question.correctAnswer ? 'correct' : ''}">
-                        ${option}
+    // Create a section for each category
+    questionList.innerHTML = categories.map(category => {
+        // Get questions for this category
+        const categoryQuestions = questions[category.id] || [];
+        
+        // Only show category section if it has questions
+        if (categoryQuestions.length === 0) return '';
+        
+        return `
+            <div class="category-section">
+                <div class="category-header" onclick="toggleCategory(${category.id})">
+                    <div class="header-content">
+                        <span class="folder-icon">📁</span>
+                        <h2>${category.name}</h2>
+                        <span class="question-count">(${categoryQuestions.length} kysymystä)</span>
                     </div>
-                `).join('')}
+                </div>
+                <div class="questions-grid" id="category-${category.id}">
+                    ${categoryQuestions.map((question, index) => `
+                        <div class="question-item">
+                            <h3>${question.question}</h3>
+                            <div class="options">
+                                ${question.options.map((option, optIndex) => `
+                                    <div class="option ${optIndex === question.correctAnswer ? 'correct' : ''}">
+                                        ${option}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="question-actions">
+                                <button class="btn-secondary" onclick="editQuestion(${category.id},${index})">Muokkaa</button>
+                                <button class="btn-danger" onclick="deleteQuestion(${category.id},${index})">Poista</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
-            <div class="question-actions">
-                <button class="btn-secondary" onclick="editQuestion(${question.categoryId},${index})">Muokkaa</button>
-                <button class="btn-danger" onclick="deleteQuestion(${question.categoryId},${index})">Poista</button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+
+    // Add styles for the new category sections
+    if (!document.getElementById('categoryStyles')) {
+        const style = document.createElement('style');
+        style.id = 'categoryStyles';
+        style.textContent = `
+            .category-section {
+                margin-bottom: 1rem;
+                background: var(--container-bg);
+                border-radius: 1rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                border: 1px solid var(--border-color);
+                overflow: hidden;
+            }
+
+            .category-header {
+                padding: 1.25rem 1.5rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background: var(--card-bg);
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .category-header:hover {
+                background-color: var(--hover-color);
+            }
+
+            .header-content {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .folder-icon {
+                font-size: 1.5rem;
+                transition: transform 0.3s ease;
+            }
+
+            .category-header.open .folder-icon {
+                transform: rotate(-5deg);
+            }
+
+            .question-count {
+                color: #6b7280;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+
+            .category-header h2 {
+                color: var(--primary-color);
+                margin: 0;
+                flex-grow: 1;
+                font-size: 1.25rem;
+            }
+
+            .questions-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.25rem;
+                padding: 1.5rem;
+                border-top: 1px solid var(--border-color);
+                opacity: 0;
+                max-height: 0;
+                transition: all 0.3s ease;
+            }
+
+            .questions-grid.open {
+                opacity: 1;
+                max-height: 2000px;
+            }
+
+            .question-item {
+                background: var(--background-color);
+                padding: 1.25rem;
+                border-radius: 0.75rem;
+                border: 1px solid var(--border-color);
+                transition: all 0.2s ease;
+            }
+
+            .question-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+
+            .question-item h3 {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+                color: var(--text-color);
+            }
+
+            .options {
+                margin-bottom: 1.25rem;
+            }
+
+            .option {
+                padding: 0.75rem;
+                margin: 0.5rem 0;
+                border-radius: 0.5rem;
+                background: white;
+                border: 1px solid var(--border-color);
+                transition: all 0.2s ease;
+            }
+
+            .option.correct {
+                background: #ecfdf5;
+                border-color: var(--primary-color);
+                color: var(--secondary-color);
+            }
+
+            .question-actions {
+                display: flex;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .question-actions button {
+                flex: 1;
+            }
+
+            .btn-danger {
+                background-color: #fee2e2;
+                color: #dc2626;
+                border: 1px solid #fecaca;
+            }
+
+            .btn-danger:hover {
+                background-color: #fecaca;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Update the toggleCategory function for smooth animations
+function toggleCategory(categoryId) {
+    const questionsGrid = document.getElementById(`category-${categoryId}`);
+    const categoryHeader = questionsGrid.previousElementSibling;
+    const isHidden = !questionsGrid.classList.contains('open');
+    
+    // Toggle the open class for animations
+    questionsGrid.classList.toggle('open');
+    categoryHeader.classList.toggle('open');
+    
+    // Update folder icon
+    const folderIcon = categoryHeader.querySelector('.folder-icon');
+    folderIcon.textContent = isHidden ? '📂' : '📁';
 }
 
 function addQuestion() {
@@ -324,7 +484,12 @@ function addUser() {
                 </div>
                 <div class="form-group">
                     <label for="password">Salasana</label>
-                    <input type="password" id="password" required>
+                    <div class="password-container">
+                        <input type="password" id="password" required>
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
+                            👁️
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="role">Rooli</label>
@@ -374,7 +539,12 @@ function editUser(userId) {
                 </div>
                 <div class="form-group">
                     <label for="password">Salasana</label>
-                    <input type="password" id="password" placeholder="Jätä tyhjäksi säilyttääksesi nykyisen">
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Jätä tyhjäksi säilyttääksesi nykyisen">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
+                            👁️
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="role">Rooli</label>
@@ -487,6 +657,15 @@ function sortResults(by) {
 // Utility functions
 function closeModal() {
     document.querySelector('.modal').remove();
+}
+
+function togglePasswordVisibility(inputId) {
+    const passwordInput = document.getElementById(inputId);
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+    } else {
+        passwordInput.type = 'password';
+    }
 }
 
 // Initialize the admin panel
