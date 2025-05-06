@@ -99,10 +99,14 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Check against the default credentials
-            if (username === 'Pasi' && password === 'Taitaja25!') {
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('teacherName', username);
+                sessionStorage.setItem('userRole', user.role);
                 window.location.href = 'admin.html';
             } else {
                 document.getElementById('errorMessage').classList.add('visible');

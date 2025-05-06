@@ -1,12 +1,22 @@
-// Check if user is logged in
+// Get user role from session
+const userRole = sessionStorage.getItem('userRole');
+
+// Check if user is logged in and has necessary permissions
 if (!sessionStorage.getItem('isLoggedIn')) {
     window.location.href = 'login.html';
+} else if (userRole !== 'admin') {
+    // Hide the users tab for non-admin users
+    document.querySelector('[data-tab="users"]').style.display = 'none';
+    document.getElementById('users').style.display = 'none';
 }
 
 // Initialize data from localStorage or use defaults
 let questions = JSON.parse(localStorage.getItem('questions')) || mockQuestions;
 let categories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
 let results = JSON.parse(localStorage.getItem('results')) || [];
+let users = JSON.parse(localStorage.getItem('users')) || [
+    { id: 1, username: 'Pasi', password: 'Taitaja25!', role: 'admin' }
+];
 
 // Tab handling
 document.querySelectorAll('.tab-button').forEach(button => {
@@ -284,6 +294,140 @@ function deleteCategory(categoryId) {
     }
 }
 
+// User management
+function loadUsers() {
+    const userList = document.getElementById('userList');
+    userList.innerHTML = users.map(user => `
+        <div class="category-item">
+            <div>
+                <h3>${user.username}</h3>
+                <span class="user-role">${user.role}</span>
+            </div>
+            <div class="category-actions">
+                <button class="btn-secondary" onclick="editUser(${user.id})">Muokkaa</button>
+                <button class="btn-danger" onclick="deleteUser(${user.id})">Poista</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addUser() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Lisää uusi käyttäjä</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="username">Käyttäjätunnus</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Salasana</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Rooli</label>
+                    <select id="role" required>
+                        <option value="teacher">Opettaja</option>
+                        <option value="admin">Ylläpitäjä</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Tallenna</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.getElementById('userForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newUser = {
+            id: users.length + 1,
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            role: document.getElementById('role').value
+        };
+
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        loadUsers();
+        closeModal();
+    });
+}
+
+function editUser(userId) {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Muokkaa käyttäjää</h2>
+            <form id="editUserForm">
+                <div class="form-group">
+                    <label for="username">Käyttäjätunnus</label>
+                    <input type="text" id="username" value="${user.username}" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Salasana</label>
+                    <input type="password" id="password" placeholder="Jätä tyhjäksi säilyttääksesi nykyisen">
+                </div>
+                <div class="form-group">
+                    <label for="role">Rooli</label>
+                    <select id="role" required>
+                        <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>Opettaja</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Ylläpitäjä</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Tallenna</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.getElementById('editUserForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const index = users.findIndex(u => u.id === userId);
+        if (index !== -1) {
+            const password = document.getElementById('password').value;
+            users[index] = {
+                ...users[index],
+                username: document.getElementById('username').value,
+                role: document.getElementById('role').value
+            };
+            if (password) {
+                users[index].password = password;
+            }
+            localStorage.setItem('users', JSON.stringify(users));
+            loadUsers();
+            closeModal();
+        }
+    });
+}
+
+function deleteUser(userId) {
+    if (users.length === 1) {
+        alert('Et voi poistaa viimeistä käyttäjää!');
+        return;
+    }
+
+    if (confirm('Haluatko varmasti poistaa tämän käyttäjän?')) {
+        const index = users.findIndex(u => u.id === userId);
+        if (index !== -1) {
+            users.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+            loadUsers();
+        }
+    }
+}
+
 // Handle game results
 function saveGameResult(playerName, category, score, total) {
     const result = {
@@ -361,8 +505,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadQuestions();
     loadCategories();
     loadResults();
+    loadUsers();
 
     // Add event listeners for add buttons
     document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
     document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+    document.getElementById('addUserBtn').addEventListener('click', addUser);
 });
