@@ -28,7 +28,26 @@ const mockQuestions = {
             options: ["1917", "1918", "1919", "1920"],
             correctAnswer: 0
         },
-        // Add more history questions...
+        {
+            question: "Kuka oli Suomen ensimmäinen presidentti?",
+            options: ["Urho Kekkonen", "K.J. Ståhlberg", "P.E. Svinhufvud", "Carl Gustaf Mannerheim"],
+            correctAnswer: 1
+        },
+        {
+            question: "Minä vuonna Suomi liittyi Euroopan unioniin?",
+            options: ["1993", "1994", "1995", "1996"],
+            correctAnswer: 2
+        },
+        {
+            question: "Mikä oli Suomen pääkaupunki ennen Helsinkiä?",
+            options: ["Turku", "Tampere", "Viipuri", "Porvoo"],
+            correctAnswer: 0
+        },
+        {
+            question: "Milloin Suomi sai oman rahan, markan?",
+            options: ["1860", "1870", "1880", "1890"],
+            correctAnswer: 0
+        }
     ],
     2: [ // Matematiikka
         {
@@ -36,7 +55,26 @@ const mockQuestions = {
             options: ["54", "56", "58", "52"],
             correctAnswer: 1
         },
-        // Add more math questions...
+        {
+            question: "Mikä on piin (π) likiarvo kahden desimaalin tarkkuudella?",
+            options: ["3.14", "3.16", "3.12", "3.18"],
+            correctAnswer: 0
+        },
+        {
+            question: "Kuinka monta astetta on ympyrässä?",
+            options: ["180", "270", "360", "400"],
+            correctAnswer: 2
+        },
+        {
+            question: "Mikä on kuutiojuuri luvusta 27?",
+            options: ["2", "3", "4", "9"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on kolmion kulmien summa?",
+            options: ["90°", "180°", "270°", "360°"],
+            correctAnswer: 1
+        }
     ],
     3: [ // Tietotekniikka
         {
@@ -44,7 +82,26 @@ const mockQuestions = {
             options: ["Python", "Java", "Router", "JavaScript"],
             correctAnswer: 2
         },
-        // Add more tech questions...
+        {
+            question: "Mikä on HTML:n tarkoitus?",
+            options: ["Tietokantojen hallinta", "Verkkosivujen tyylittely", "Verkkosivujen rakenne", "Palvelinohjelmointi"],
+            correctAnswer: 2
+        },
+        {
+            question: "Mitä tarkoittaa CSS?",
+            options: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style System", "Color Style Syntax"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä seuraavista on pilvipalvelu?",
+            options: ["Windows", "Firefox", "AWS", "Notepad"],
+            correctAnswer: 2
+        },
+        {
+            question: "Mikä on RAM?",
+            options: ["Kiintolevy", "Suoritin", "Keskusmuisti", "Näytönohjain"],
+            correctAnswer: 2
+        }
     ]
 };
 
