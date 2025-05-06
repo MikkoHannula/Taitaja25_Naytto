@@ -100,6 +100,145 @@ footer {
     border-top: 1px solid #e5e7eb;
 }
 
+.option-btn {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.option-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.option-btn.correct {
+    background: #10b981;
+    color: white;
+    border-color: #059669;
+    animation: correctAnswer 0.5s ease;
+}
+
+.option-btn.incorrect {
+    background: #ef4444;
+    color: white;
+    border-color: #dc2626;
+    animation: incorrectAnswer 0.5s ease;
+}
+
+@keyframes correctAnswer {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes incorrectAnswer {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+    100% { transform: translateX(0); }
+}
+
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.progress, .score {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.score {
+    color: var(--primary-color);
+}
+
+.question h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+    line-height: 1.4;
+}
+
+.name-input input {
+    width: 100%;
+    max-width: 300px;
+    padding: 0.75rem;
+    margin: 1rem auto;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.name-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.feedback {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.feedback-message {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease;
+}
+
+.feedback-message.correct {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.feedback-message.incorrect {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 768px) {
     .hero h1 {
         font-size: 2rem;

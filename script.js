@@ -281,8 +281,12 @@ function getRandomQuestions(questions, count) {
 function displayQuestion() {
     const question = gameState.questions[gameState.currentQuestion];
     const questionContainer = document.getElementById('questionContainer');
+    const progress = ((gameState.currentQuestion) / gameState.questions.length) * 100;
     
     questionContainer.innerHTML = `
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+        </div>
         <div class="question">
             <h2>${question.question}</h2>
             <div class="options">
@@ -291,6 +295,7 @@ function displayQuestion() {
                 `).join('')}
             </div>
         </div>
+        <div id="feedback" class="feedback"></div>
     `;
 
     // Update progress
@@ -308,6 +313,7 @@ function handleAnswer(event) {
     const selectedIndex = parseInt(event.target.dataset.index);
     const currentQuestion = gameState.questions[gameState.currentQuestion];
     const isCorrect = selectedIndex === currentQuestion.correctAnswer;
+    const feedback = document.getElementById('feedback');
 
     // Disable all buttons
     const buttons = document.querySelectorAll('.option-btn');
@@ -322,13 +328,24 @@ function handleAnswer(event) {
         }
     });
 
-    // Update score
+    // Show feedback message
     if (isCorrect) {
         gameState.score++;
         document.getElementById('scoreDisplay').textContent = gameState.score;
+        feedback.innerHTML = `
+            <div class="feedback-message correct">
+                <span>Oikein!</span>
+            </div>
+        `;
+    } else {
+        feedback.innerHTML = `
+            <div class="feedback-message incorrect">
+                <span>Väärin! Oikea vastaus oli: ${currentQuestion.options[currentQuestion.correctAnswer]}</span>
+            </div>
+        `;
     }
 
-    // Show feedback and proceed to next question
+    // Proceed to next question after delay
     setTimeout(() => {
         gameState.currentQuestion++;
         
@@ -337,7 +354,7 @@ function handleAnswer(event) {
         } else {
             showGameOver();
         }
-    }, 1500);
+    }, 2000);
 }
 
 function showGameOver() {
@@ -429,6 +446,35 @@ function showGameOver() {
 
         .question h2 {
             margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s;
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .feedback-message.correct {
+            color: #10b981;
+        }
+
+        .feedback-message.incorrect {
+            color: #ef4444;
         }
     `;
     document.head.appendChild(style);
