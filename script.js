@@ -10,8 +10,8 @@ const gameState = {
 
 // Mock data for testing (replace with actual data later)
 const mockTeachers = [
-    { id: 1, name: "Olevi Opettaja" },
-    { id: 2, name: "Outi Opettaja" }
+    { id: 1, name: "Pasi Opettaja" },
+    { id: 2, name: "Pauli Opettaja" }
 ];
 
 const mockCategories = [
@@ -47,6 +47,56 @@ const mockQuestions = {
             question: "Milloin Suomi sai oman rahan, markan?",
             options: ["1860", "1870", "1880", "1890"],
             correctAnswer: 0
+        },
+        {
+            question: "Minä vuonna Suomi sai ensimmäisen naispresidentin?",
+            options: ["2000", "2012", "2010", "2008"],
+            correctAnswer: 0
+        },
+        {
+            question: "Mikä oli Suomen ensimmäinen rautatie?",
+            options: ["Helsinki-Tampere", "Helsinki-Hämeenlinna", "Turku-Helsinki", "Tampere-Oulu"],
+            correctAnswer: 1
+        },
+        {
+            question: "Minä vuonna Suomi järjesti ensimmäiset olympialaiset?",
+            options: ["1948", "1950", "1952", "1956"],
+            correctAnswer: 2
+        },
+        {
+            question: "Kuka oli Suomen pitkäaikaisin presidentti?",
+            options: ["Urho Kekkonen", "C.G.E. Mannerheim", "J.K. Paasikivi", "Mauno Koivisto"],
+            correctAnswer: 0
+        },
+        {
+            question: "Milloin Suomi siirtyi euroon?",
+            options: ["1999", "2000", "2001", "2002"],
+            correctAnswer: 3
+        },
+        {
+            question: "Mikä oli Viipurin linnan rakennusvuosi?",
+            options: ["1293", "1311", "1323", "1346"],
+            correctAnswer: 0
+        },
+        {
+            question: "Minä vuonna perustettiin Suomen ensimmäinen yliopisto?",
+            options: ["1540", "1560", "1600", "1640"],
+            correctAnswer: 3
+        },
+        {
+            question: "Milloin Suomen peruskoulu-uudistus alkoi?",
+            options: ["1968", "1972", "1976", "1980"],
+            correctAnswer: 1
+        },
+        {
+            question: "Minä vuonna Suomi sai oman lipun?",
+            options: ["1917", "1918", "1919", "1920"],
+            correctAnswer: 1
+        },
+        {
+            question: "Kuka oli Suomen ensimmäinen olympiavoittaja?",
+            options: ["Hannes Kolehmainen", "Paavo Nurmi", "Ville Ritola", "Verner Järvinen"],
+            correctAnswer: 0
         }
     ],
     2: [ // Matematiikka
@@ -73,6 +123,56 @@ const mockQuestions = {
         {
             question: "Mikä on kolmion kulmien summa?",
             options: ["90°", "180°", "270°", "360°"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on 15% sadasta?",
+            options: ["10", "15", "20", "25"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on suorakulmaisen kolmion hypotenuusan laskukaava?",
+            options: ["a² + b²", "a² + b² = c²", "a + b = c", "a × b = c"],
+            correctAnswer: 1
+        },
+        {
+            question: "Kuinka monta sivua on kuutiossa?",
+            options: ["4", "6", "8", "12"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on 2⁴?",
+            options: ["8", "16", "32", "64"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on mediaani luvuista: 1, 3, 3, 6, 7, 8, 9?",
+            options: ["3", "6", "5", "7"],
+            correctAnswer: 1
+        },
+        {
+            question: "Montako astetta on suora kulma?",
+            options: ["45°", "90°", "180°", "360°"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on lukujen 24 ja 36 suurin yhteinen tekijä?",
+            options: ["6", "12", "18", "24"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on 1/4 desimaaleina?",
+            options: ["0.25", "0.4", "0.5", "0.75"],
+            correctAnswer: 0
+        },
+        {
+            question: "Mikä on kolmion pinta-alan kaava?",
+            options: ["a × b", "a × h", "(a × h) / 2", "a + b + c"],
+            correctAnswer: 2
+        },
+        {
+            question: "Kuinka monta sivua on oktaedrissa?",
+            options: ["6", "8", "10", "12"],
             correctAnswer: 1
         }
     ],
@@ -101,6 +201,56 @@ const mockQuestions = {
             question: "Mikä on RAM?",
             options: ["Kiintolevy", "Suoritin", "Keskusmuisti", "Näytönohjain"],
             correctAnswer: 2
+        },
+        {
+            question: "Mikä seuraavista on käyttöjärjestelmä?",
+            options: ["Firefox", "Excel", "Linux", "Word"],
+            correctAnswer: 2
+        },
+        {
+            question: "Mitä tarkoittaa URL?",
+            options: ["Universal Resource Location", "Uniform Resource Locator", "United Resource Link", "Universal Resource Link"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on tietokoneen prosessorin lyhenne?",
+            options: ["GPU", "RAM", "CPU", "HDD"],
+            correctAnswer: 2
+        },
+        {
+            question: "Mitä tarkoittaa Wi-Fi?",
+            options: ["Wireless Fidelity", "Wireless Finding", "Wire Filter", "Wide Fidelity"],
+            correctAnswer: 0
+        },
+        {
+            question: "Mikä seuraavista on selain?",
+            options: ["Windows", "Chrome", "Office", "Photoshop"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on PDF-tiedoston täydellinen nimi?",
+            options: ["Personal Document Format", "Portable Document Format", "Public Document Format", "Protected Document Format"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on yleisin tiedostomuoto kuville internetissä?",
+            options: ["PNG", "JPG", "GIF", "BMP"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mikä on sähköpostin @ -merkin englanninkielinen nimi?",
+            options: ["At sign", "Monkey tail", "Snail", "Circle A"],
+            correctAnswer: 0
+        },
+        {
+            question: "Mikä seuraavista on varmuuskopiointiin tarkoitettu tallennusväline?",
+            options: ["CPU", "NAS", "RAM", "GPU"],
+            correctAnswer: 1
+        },
+        {
+            question: "Mitä tarkoittaa HTTPS?",
+            options: ["Hyper Text Transfer Protocol", "Hyper Text Transfer Protocol Secure", "High Transfer Text Protocol", "High Text Transfer Protocol"],
+            correctAnswer: 1
         }
     ]
 };
@@ -113,17 +263,19 @@ document.addEventListener('DOMContentLoaded', () => {
     playNowBtn.addEventListener('click', startGame);
     loginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = '/admin';
+        window.location.href = 'login.html';  // Changed from '/admin' to 'login.html'
     });
 });
 
 function startGame() {
-    // Create game setup overlay
     const overlay = document.createElement('div');
     overlay.className = 'game-setup-overlay';
     overlay.innerHTML = `
         <div class="game-setup">
-            <h2>Aloita peli</h2>
+            <div class="setup-header">
+                <h2>Aloita peli</h2>
+                <button class="close-btn" id="closeSetup">&times;</button>
+            </div>
             <div class="setup-section">
                 <label for="teacher">Valitse opettaja:</label>
                 <select id="teacher">
@@ -178,6 +330,29 @@ function startGame() {
             border-radius: 0.5rem;
             width: 90%;
             max-width: 500px;
+            position: relative;
+        }
+
+        .setup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #000;
         }
 
         .setup-section {
@@ -204,6 +379,12 @@ function startGame() {
         }
     `;
     document.head.appendChild(style);
+
+    // Add event listener for the close button
+    const closeBtn = overlay.querySelector('#closeSetup');
+    closeBtn.addEventListener('click', () => {
+        document.body.removeChild(overlay);
+    });
 
     // Add event listener for the start game button
     const startGameBtn = overlay.querySelector('#startGameBtn');
@@ -493,6 +674,24 @@ function saveHighScore() {
         return;
     }
 
-    // TODO: Implement actual high score saving to a backend
+    // Get the category name from mockCategories
+    const categoryName = mockCategories.find(cat => cat.id === parseInt(gameState.category)).name;
+
+    // Get existing results or initialize empty array
+    let results = JSON.parse(localStorage.getItem('results')) || [];
+    
+    // Add new result
+    results.push({
+        name: playerName,
+        category: categoryName,
+        score: `${gameState.score}/${gameState.questions.length}`,
+        date: new Date().toISOString().split('T')[0]
+    });
+
+    // Save to localStorage
+    localStorage.setItem('results', JSON.stringify(results));
     alert('Tulos tallennettu!');
+    
+    // Redirect back to main menu
+    location.href = 'index.html';
 }

@@ -89,13 +89,20 @@
         </div>
     </main>
     <script>
+        // Check if already logged in
+        if (sessionStorage.getItem('isLoggedIn')) {
+            window.location.href = 'admin.html';
+        }
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             // Check against the default credentials
-            if (username === 'Olevi Opettaja' && password === 'Taitaja2025!') {
+            if (username === 'Pasi' && password === 'Taitaja25!') {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('teacherName', username);
                 window.location.href = 'admin.html';
             } else {
                 document.getElementById('errorMessage').classList.add('visible');

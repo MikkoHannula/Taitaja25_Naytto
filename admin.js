@@ -3,31 +3,34 @@ if (!sessionStorage.getItem('isLoggedIn')) {
     window.location.href = 'login.html';
 }
 
+// Initialize data from localStorage or use defaults
+let questions = JSON.parse(localStorage.getItem('questions')) || mockQuestions;
+let categories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
+let results = JSON.parse(localStorage.getItem('results')) || [];
+
 // Tab handling
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
-        // Remove active class from all tabs
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        // Add active class to clicked tab
         button.classList.add('active');
         document.getElementById(button.dataset.tab).classList.add('active');
     });
 });
 
-// Mock data for questions and results
-let questions = mockQuestions[1].concat(mockQuestions[2]).concat(mockQuestions[3]);
-let categories = mockCategories;
-let results = [
-    { name: "Testi Testaaja", category: "Historia", score: "8/10", date: "2025-05-06" },
-    { name: "Matti Meikäläinen", category: "Matematiikka", score: "7/10", date: "2025-05-06" }
-];
-
 // Question management
 function loadQuestions() {
     const questionList = document.getElementById('questionList');
-    questionList.innerHTML = questions.map((question, index) => `
+    let allQuestions = [];
+    
+    // Flatten all questions from categories
+    Object.keys(questions).forEach(categoryId => {
+        questions[categoryId].forEach(question => {
+            allQuestions.push({ ...question, categoryId });
+        });
+    });
+
+    questionList.innerHTML = allQuestions.map((question, index) => `
         <div class="question-item">
             <h3>${question.question}</h3>
             <div class="options">
@@ -38,8 +41,8 @@ function loadQuestions() {
                 `).join('')}
             </div>
             <div class="question-actions">
-                <button class="btn-secondary" onclick="editQuestion(${index})">Muokkaa</button>
-                <button class="btn-danger" onclick="deleteQuestion(${index})">Poista</button>
+                <button class="btn-secondary" onclick="editQuestion(${question.categoryId},${index})">Muokkaa</button>
+                <button class="btn-danger" onclick="deleteQuestion(${question.categoryId},${index})">Poista</button>
             </div>
         </div>
     `).join('');
@@ -89,25 +92,41 @@ function addQuestion() {
     document.body.appendChild(modal);
     document.getElementById('questionForm').addEventListener('submit', (e) => {
         e.preventDefault();
+        const categoryId = document.getElementById('category').value;
         const newQuestion = {
             question: document.getElementById('question').value,
             options: Array.from({length: 4}, (_, i) => document.getElementById(`option${i}`).value),
             correctAnswer: parseInt(document.getElementById('correctAnswer').value)
         };
-        questions.push(newQuestion);
+
+        if (!questions[categoryId]) {
+            questions[categoryId] = [];
+        }
+        questions[categoryId].push(newQuestion);
+        localStorage.setItem('questions', JSON.stringify(questions));
         loadQuestions();
         closeModal();
     });
 }
 
-function editQuestion(index) {
-    const question = questions[index];
+function editQuestion(categoryId, index) {
+    const question = questions[categoryId][index];
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.innerHTML = `
         <div class="modal-content">
             <h2>Muokkaa kysymystä</h2>
             <form id="editQuestionForm">
+                <div class="form-group">
+                    <label for="category">Kategoria</label>
+                    <select id="category" required>
+                        ${categories.map(cat => `
+                            <option value="${cat.id}" ${cat.id === parseInt(categoryId) ? 'selected' : ''}>
+                                ${cat.name}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="question">Kysymys</label>
                     <input type="text" id="question" value="${question.question}" required>
@@ -139,19 +158,32 @@ function editQuestion(index) {
     document.body.appendChild(modal);
     document.getElementById('editQuestionForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        questions[index] = {
+        const newCategoryId = document.getElementById('category').value;
+        const updatedQuestion = {
             question: document.getElementById('question').value,
             options: Array.from({length: 4}, (_, i) => document.getElementById(`option${i}`).value),
             correctAnswer: parseInt(document.getElementById('correctAnswer').value)
         };
+
+        // Remove from old category
+        questions[categoryId].splice(index, 1);
+        
+        // Add to new category
+        if (!questions[newCategoryId]) {
+            questions[newCategoryId] = [];
+        }
+        questions[newCategoryId].push(updatedQuestion);
+        
+        localStorage.setItem('questions', JSON.stringify(questions));
         loadQuestions();
         closeModal();
     });
 }
 
-function deleteQuestion(index) {
+function deleteQuestion(categoryId, index) {
     if (confirm('Haluatko varmasti poistaa tämän kysymyksen?')) {
-        questions.splice(index, 1);
+        questions[categoryId].splice(index, 1);
+        localStorage.setItem('questions', JSON.stringify(questions));
         loadQuestions();
     }
 }
@@ -159,19 +191,110 @@ function deleteQuestion(index) {
 // Category management
 function loadCategories() {
     const categoryList = document.getElementById('categoryList');
-    categoryList.innerHTML = `
-        <div class="category-list">
-            ${categories.map(category => `
-                <div class="category-item">
-                    <h3>${category.name}</h3>
-                    <div class="category-actions">
-                        <button class="btn-secondary" onclick="editCategory(${category.id})">Muokkaa</button>
-                        <button class="btn-danger" onclick="deleteCategory(${category.id})">Poista</button>
-                    </div>
+    categoryList.innerHTML = categories.map(category => `
+        <div class="category-item">
+            <h3>${category.name}</h3>
+            <div class="category-actions">
+                <button class="btn-secondary" onclick="editCategory(${category.id})">Muokkaa</button>
+                <button class="btn-danger" onclick="deleteCategory(${category.id})">Poista</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addCategory() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Lisää uusi kategoria</h2>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="categoryName">Kategorian nimi</label>
+                    <input type="text" id="categoryName" required>
                 </div>
-            `).join('')}
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Tallenna</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
+                </div>
+            </form>
         </div>
     `;
+
+    document.body.appendChild(modal);
+    document.getElementById('categoryForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newCategory = {
+            id: categories.length + 1,
+            name: document.getElementById('categoryName').value
+        };
+        categories.push(newCategory);
+        localStorage.setItem('categories', JSON.stringify(categories));
+        loadCategories();
+        closeModal();
+    });
+}
+
+function editCategory(categoryId) {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Muokkaa kategoriaa</h2>
+            <form id="editCategoryForm">
+                <div class="form-group">
+                    <label for="categoryName">Kategorian nimi</label>
+                    <input type="text" id="categoryName" value="${category.name}" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Tallenna</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.getElementById('editCategoryForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const index = categories.findIndex(c => c.id === categoryId);
+        if (index !== -1) {
+            categories[index].name = document.getElementById('categoryName').value;
+            localStorage.setItem('categories', JSON.stringify(categories));
+            loadCategories();
+            closeModal();
+        }
+    });
+}
+
+function deleteCategory(categoryId) {
+    if (confirm('Haluatko varmasti poistaa tämän kategorian? Kaikki kategorian kysymykset poistetaan myös.')) {
+        const index = categories.findIndex(c => c.id === categoryId);
+        if (index !== -1) {
+            categories.splice(index, 1);
+            delete questions[categoryId];
+            localStorage.setItem('categories', JSON.stringify(categories));
+            localStorage.setItem('questions', JSON.stringify(questions));
+            loadCategories();
+            loadQuestions();
+        }
+    }
+}
+
+// Handle game results
+function saveGameResult(playerName, category, score, total) {
+    const result = {
+        name: playerName,
+        category: category,
+        score: `${score}/${total}`,
+        date: new Date().toISOString().split('T')[0]
+    };
+    results.push(result);
+    localStorage.setItem('results', JSON.stringify(results));
+    loadResults();
 }
 
 // Results management
@@ -207,7 +330,9 @@ function loadResults(page = 1) {
 function sortResults(by) {
     results.sort((a, b) => {
         if (by === 'score') {
-            return parseInt(b.score) - parseInt(a.score);
+            const scoreA = parseInt(a.score);
+            const scoreB = parseInt(b.score);
+            return scoreB - scoreA;
         } else {
             return new Date(b.date) - new Date(a.date);
         }
@@ -222,13 +347,22 @@ function closeModal() {
 
 // Initialize the admin panel
 document.addEventListener('DOMContentLoaded', () => {
+    // Display teacher name
+    const teacherName = sessionStorage.getItem('teacherName');
+    document.getElementById('teacherName').textContent = teacherName;
+
+    // Add logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        sessionStorage.removeItem('isLoggedIn');
+        sessionStorage.removeItem('teacherName');
+        window.location.href = 'login.html';
+    });
+
     loadQuestions();
     loadCategories();
     loadResults();
 
     // Add event listeners for add buttons
     document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
-    document.getElementById('addCategoryBtn').addEventListener('click', () => {
-        // Implement category addition
-    });
+    document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
 });
