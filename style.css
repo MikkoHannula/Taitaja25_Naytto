@@ -261,6 +261,36 @@ footer {
     background-color: var(--hover-color);
 }
 
+/* Animation styles */
+@keyframes popIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.feedback-message {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.feedback-message.correct {
+    color: var(--primary-color);
+    animation: popIn 0.5s ease-out forwards;
+}
+
+.feedback-message.incorrect {
+    color: #ef4444;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .hero h1 {

@@ -504,11 +504,25 @@ function displayQuestion() {
     });
 }
 
+function showFeedback(isCorrect) {
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.className = `feedback-message ${isCorrect ? 'correct' : 'incorrect'}`;
+    feedbackDiv.textContent = isCorrect ? 'Oikein!' : 'Väärin!';
+    
+    const questionContainer = document.getElementById('questionContainer');
+    // Remove any existing feedback
+    const existingFeedback = questionContainer.querySelector('.feedback-message');
+    if (existingFeedback) {
+        existingFeedback.remove();
+    }
+    
+    questionContainer.appendChild(feedbackDiv);
+}
+
 function handleAnswer(event) {
     const selectedIndex = parseInt(event.target.dataset.index);
     const currentQuestion = gameState.questions[gameState.currentQuestion];
     const isCorrect = selectedIndex === currentQuestion.correctAnswer;
-    const feedback = document.getElementById('feedback');
 
     // Disable all buttons
     const buttons = document.querySelectorAll('.option-btn');
@@ -524,21 +538,7 @@ function handleAnswer(event) {
     });
 
     // Show feedback message
-    if (isCorrect) {
-        gameState.score++;
-        document.getElementById('scoreDisplay').textContent = gameState.score;
-        feedback.innerHTML = `
-            <div class="feedback-message correct">
-                <span>Oikein!</span>
-            </div>
-        `;
-    } else {
-        feedback.innerHTML = `
-            <div class="feedback-message incorrect">
-                <span>Väärin! Oikea vastaus oli: ${currentQuestion.options[currentQuestion.correctAnswer]}</span>
-            </div>
-        `;
-    }
+    showFeedback(isCorrect);
 
     // Proceed to next question after delay
     setTimeout(() => {
