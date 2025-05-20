@@ -573,6 +573,12 @@ function addUser() {
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
         loadUsers();
+        // --- Add teacher to teachers list if role is teacher ---
+        if (newUser.role === 'teacher') {
+            let teachers = JSON.parse(localStorage.getItem('teachers')) || [];
+            teachers.push({ id: newUser.id, name: newUser.username });
+            localStorage.setItem('teachers', JSON.stringify(teachers));
+        }
         closeModal();
     });
 }

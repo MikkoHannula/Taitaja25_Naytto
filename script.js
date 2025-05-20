@@ -10,8 +10,7 @@ const gameState = {
 
 // Mock data for testing (replace with actual data later)
 const mockTeachers = [
-    { id: 1, name: "Pasi Opettaja" },
-    { id: 2, name: "Pauli Opettaja" }
+    { id: 1, name: "Pasi" }
 ];
 
 const mockCategories = [
@@ -278,8 +277,14 @@ function getQuestions() {
     return JSON.parse(localStorage.getItem('questions')) || mockQuestions;
 }
 
+// Get teachers from localStorage or use mockTeachers
+function getTeachers() {
+    return JSON.parse(localStorage.getItem('teachers')) || mockTeachers;
+}
+
 function startGame() {
     const categories = getCategories();
+    const teachers = getTeachers();
     const overlay = document.createElement('div');
     overlay.className = 'game-setup-overlay';
     overlay.innerHTML = `
@@ -292,8 +297,8 @@ function startGame() {
                 <label for="teacher">Valitse opettaja:</label>
                 <select id="teacher">
                     <option value="">Valitse opettaja...</option>
-                    ${mockTeachers.map(teacher => 
-                        `<option value="${teacher.id}">${teacher.name}</option>`
+                    ${teachers.map(teacher => 
+                        `<option value="${teacher.id}">${teacher.name || teacher.username}</option>`
                     ).join('')}
                 </select>
             </div>
