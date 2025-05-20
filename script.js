@@ -524,6 +524,11 @@ function handleAnswer(event) {
     const currentQuestion = gameState.questions[gameState.currentQuestion];
     const isCorrect = selectedIndex === currentQuestion.correctAnswer;
 
+    if (isCorrect) {
+        gameState.score++;
+        document.getElementById('scoreDisplay').textContent = gameState.score;
+    }
+
     // Disable all buttons
     const buttons = document.querySelectorAll('.option-btn');
     buttons.forEach(button => {
@@ -688,19 +693,21 @@ function saveHighScore() {
         return;
     }
 
-    // Get the category name from mockCategories
-    const categoryName = mockCategories.find(cat => cat.id === parseInt(gameState.category)).name;
+    // Get the category name and id from mockCategories
+    const category = mockCategories.find(cat => cat.id === parseInt(gameState.category));
 
     // Get existing results or initialize empty array
     let results = JSON.parse(localStorage.getItem('results')) || [];
     
     // Add new result
-    results.push({
+    const newResult = {
         name: playerName,
-        category: categoryName,
+        category: category.name,
+        categoryId: category.id, // Save categoryId for filtering
         score: `${gameState.score}/${gameState.questions.length}`,
         date: new Date().toISOString().split('T')[0]
-    });
+    };
+    results.push(newResult);
 
     // Save to localStorage
     localStorage.setItem('results', JSON.stringify(results));

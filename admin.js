@@ -18,6 +18,25 @@ let users = JSON.parse(localStorage.getItem('users')) || [
     { id: 1, username: 'Pasi', password: 'Taitaja25!', role: 'admin' }
 ];
 
+// Migrate old results to include categoryId if missing
+function migrateResultsCategoryId() {
+    let results = JSON.parse(localStorage.getItem('results')) || [];
+    let categories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
+    let updated = false;
+    results.forEach(result => {
+        if (!result.categoryId && result.category) {
+            const cat = categories.find(c => c.name === result.category);
+            if (cat) {
+                result.categoryId = cat.id;
+                updated = true;
+            }
+        }
+    });
+    if (updated) {
+        localStorage.setItem('results', JSON.stringify(results));
+    }
+}
+
 // Tab handling
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
@@ -618,16 +637,107 @@ let currentCategoryFilter = 'all';
 // Results management
 function loadResults() {
     const resultsContent = document.getElementById('results');
-    const categoryButtons = document.createElement('div');
-    categoryButtons.className = 'category-filters';
-    categoryButtons.innerHTML = `
-        <button class="btn-secondary active" onclick="filterResultsByCategory('all')">Kaikki kategoriat</button>
-        ${categories.map(cat => `
-            <button class="btn-secondary" onclick="filterResultsByCategory(${cat.id})">${cat.name}</button>
-        `).join('')}
+    resultsContent.innerHTML = '';
+
+    // Helper to create sorting buttons
+    function createSortButtons(sectionId, onSort) {
+        const div = document.createElement('div');
+        div.className = 'sort-buttons';
+        div.innerHTML = `
+            <button class="btn-secondary" onclick="window.sortCategoryResults('${sectionId}', 'score')">Järjestä pisteiden mukaan</button>
+            <button class="btn-secondary" onclick="window.sortCategoryResults('${sectionId}', 'date')">Järjestä päivämäärän mukaan</button>
+        `;
+        return div;
+    }
+
+    // Store sort state for each section
+    if (!window.categorySortStates) window.categorySortStates = {};
+
+    // Kaikki kategoriat (all results)
+    const allSectionId = 'all';
+    window.categorySortStates[allSectionId] = window.categorySortStates[allSectionId] || { sort: 'date' };
+    const allSection = document.createElement('section');
+    allSection.innerHTML = `
+        <button class="accordion-btn" type="button" onclick="window.toggleAccordion('${allSectionId}')">Kaikki kategoriat</button>
+        <div class="accordion-content" id="accordion-${allSectionId}" style="display:block;">
+            <div id="sortBtns-${allSectionId}"></div>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Käyttäjä</th>
+                        <th>Kategoria</th>
+                        <th>Pisteet</th>
+                        <th>Päivämäärä</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBodyAll"></tbody>
+            </table>
+        </div>
     `;
-    resultsContent.appendChild(categoryButtons);
-    filterResultsByCategory(currentCategoryFilter, defaultSort);
+    resultsContent.appendChild(allSection);
+    document.getElementById(`sortBtns-${allSectionId}`).appendChild(createSortButtons(allSectionId));
+    displayResults(sortResultsArray(results, window.categorySortStates[allSectionId].sort), 'resultsTableBodyAll');
+
+    // Each category separately
+    categories.forEach(cat => {
+        const sectionId = `cat${cat.id}`;
+        window.categorySortStates[sectionId] = window.categorySortStates[sectionId] || { sort: 'date' };
+        const catSection = document.createElement('section');
+        catSection.innerHTML = `
+            <button class="accordion-btn" type="button" onclick="window.toggleAccordion('${sectionId}')">${cat.name}</button>
+            <div class="accordion-content" id="accordion-${sectionId}" style="display:none;">
+                <div id="sortBtns-${sectionId}"></div>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Käyttäjä</th>
+                            <th>Pisteet</th>
+                            <th>Päivämäärä</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBodyCat${cat.id}"></tbody>
+                </table>
+            </div>
+        `;
+        resultsContent.appendChild(catSection);
+        document.getElementById(`sortBtns-${sectionId}`).appendChild(createSortButtons(sectionId));
+        const catResults = results.filter(r => r.categoryId === cat.id);
+        displayResults(sortResultsArray(catResults, window.categorySortStates[sectionId].sort), `resultsTableBodyCat${cat.id}`, false);
+    });
+}
+
+// Accordion and sorting logic for global use
+window.toggleAccordion = function(sectionId) {
+    const content = document.getElementById(`accordion-${sectionId}`);
+    if (content.style.display === 'block') {
+        content.style.display = 'none';
+    } else {
+        content.style.display = 'block';
+    }
+};
+
+window.sortCategoryResults = function(sectionId, sortType) {
+    window.categorySortStates[sectionId].sort = sortType;
+    if (sectionId === 'all') {
+        displayResults(sortResultsArray(results, sortType), 'resultsTableBodyAll');
+    } else {
+        const catId = parseInt(sectionId.replace('cat', ''));
+        const catResults = results.filter(r => r.categoryId === catId);
+        displayResults(sortResultsArray(catResults, sortType), `resultsTableBodyCat${catId}`, false);
+    }
+};
+
+function displayResults(resultsToDisplay, tbodyId, showCategory = true) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = resultsToDisplay.map(result => `
+        <tr>
+            <td>${result.name}</td>
+            ${showCategory ? `<td>${result.category}</td>` : ''}
+            <td>${result.score}</td>
+            <td>${result.date}</td>
+        </tr>
+    `).join('');
 }
 
 function filterResultsByCategory(categoryId, sortBy = defaultSort) {
@@ -660,18 +770,6 @@ function sortResultsArray(resultsArray, criteria) {
     return sortedResults;
 }
 
-function displayResults(resultsToDisplay) {
-    const tbody = document.getElementById('resultsTableBody');
-    tbody.innerHTML = resultsToDisplay.map(result => `
-        <tr>
-            <td>${result.name}</td>
-            <td>${result.category}</td>
-            <td>${result.score}</td>
-            <td>${result.date}</td>
-        </tr>
-    `).join('');
-}
-
 // Utility functions
 function closeModal() {
     document.querySelector('.modal').remove();
@@ -686,8 +784,38 @@ function togglePasswordVisibility(inputId) {
     }
 }
 
+// Add minimal CSS for accordion
+if (!document.getElementById('accordionStyles')) {
+    const style = document.createElement('style');
+    style.id = 'accordionStyles';
+    style.textContent = `
+        .accordion-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem;
+            font-size: 1.1rem;
+            background: #f1f5f9;
+            border: none;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            outline: none;
+            transition: background 0.2s;
+        }
+        .accordion-btn:hover {
+            background: #e2e8f0;
+        }
+        .accordion-content {
+            padding: 1rem 0;
+            background: white;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // Initialize the admin panel
 document.addEventListener('DOMContentLoaded', () => {
+    migrateResultsCategoryId();
+
     // Display teacher name
     const teacherName = sessionStorage.getItem('teacherName');
     document.getElementById('teacherName').textContent = teacherName;
