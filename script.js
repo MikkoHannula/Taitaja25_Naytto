@@ -267,7 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+function getCategories() {
+    const allCategories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
+    const allQuestions = JSON.parse(localStorage.getItem('questions')) || mockQuestions;
+    // Only return categories with at least 5 questions
+    return allCategories.filter(cat => (allQuestions[cat.id] || []).length >= 5);
+}
+
+function getQuestions() {
+    return JSON.parse(localStorage.getItem('questions')) || mockQuestions;
+}
+
 function startGame() {
+    const categories = getCategories();
     const overlay = document.createElement('div');
     overlay.className = 'game-setup-overlay';
     overlay.innerHTML = `
@@ -289,7 +301,7 @@ function startGame() {
                 <label for="category">Valitse kategoria:</label>
                 <select id="category">
                     <option value="">Valitse kategoria...</option>
-                    ${mockCategories.map(category => 
+                    ${categories.map(category => 
                         `<option value="${category.id}">${category.name}</option>`
                     ).join('')}
                 </select>
@@ -392,16 +404,19 @@ function startGame() {
         const teacherSelect = document.getElementById('teacher');
         const categorySelect = document.getElementById('category');
         const questionCountSelect = document.getElementById('questionCount');
-
+        const allQuestions = getQuestions();
+        const selectedCategoryQuestions = allQuestions[categorySelect.value] || [];
         if (!teacherSelect.value || !categorySelect.value) {
             alert('Valitse opettaja ja kategoria jatkaaksesi.');
             return;
         }
-
+        if (selectedCategoryQuestions.length < parseInt(questionCountSelect.value)) {
+            alert('Valitussa kategoriassa ei ole tarpeeksi kysymyksiä. Lisää kysymyksiä tai valitse pienempi määrä.');
+            return;
+        }
         gameState.teacher = teacherSelect.value;
         gameState.category = categorySelect.value;
         gameState.questionCount = parseInt(questionCountSelect.value);
-
         // Remove the overlay and start the actual game
         document.body.removeChild(overlay);
         loadGame();
@@ -461,7 +476,8 @@ function loadGame() {
     });
 
     // Load questions for the selected category
-    gameState.questions = getRandomQuestions(mockQuestions[gameState.category], gameState.questionCount);
+    const allQuestions = getQuestions();
+    gameState.questions = getRandomQuestions(allQuestions[gameState.category], gameState.questionCount);
     gameState.currentQuestion = 0;
     gameState.score = 0;
     
@@ -711,8 +727,21 @@ function saveHighScore() {
 
     // Save to localStorage
     localStorage.setItem('results', JSON.stringify(results));
-    alert('Tulos tallennettu!');
-    
-    // Redirect back to main menu
-    location.href = 'index.html';
+
+    // Show animated confirmation text instead of alert
+    let nameInputDiv = document.querySelector('.name-input');
+    let existingMsg = document.getElementById('scoreSavedMsg');
+    if (existingMsg) existingMsg.remove();
+    let msg = document.createElement('div');
+    msg.id = 'scoreSavedMsg';
+    msg.textContent = 'Tulos tallennettu!';
+    msg.style.marginTop = '1rem';
+    msg.style.fontWeight = 'bold';
+    msg.style.color = '#10b981';
+    msg.style.opacity = '0';
+    msg.style.transition = 'opacity 0.7s';
+    nameInputDiv.appendChild(msg);
+    setTimeout(() => { msg.style.opacity = '1'; }, 50);
+    // Redirect after 1.5s
+    setTimeout(() => { location.href = 'index.html'; }, 1500);
 }

@@ -151,13 +151,14 @@ function loadQuestions() {
                 padding: 1.5rem;
                 border-top: 1px solid var(--border-color);
                 opacity: 0;
-                max-height: 0;
+                max-height: 80px;
+                overflow-y: auto;
                 transition: all 0.3s ease;
             }
 
             .questions-grid.open {
                 opacity: 1;
-                max-height: 2000px;
+                max-height: 1200px;
             }
 
             .question-item {
@@ -251,6 +252,7 @@ function addQuestion() {
                             <option value="${cat.id}">${cat.name}</option>
                         `).join('')}
                     </select>
+                    <div id="questionCountInfo" style="font-size:0.95rem; margin-top:0.5rem;"></div>
                 </div>
                 <div class="form-group">
                     <label for="question">Kysymys</label>
@@ -279,6 +281,22 @@ function addQuestion() {
     `;
 
     document.body.appendChild(modal);
+
+    // Show question count info for selected category
+    function updateQuestionCountInfo() {
+        const catId = document.getElementById('category').value;
+        const count = (questions[catId] || []).length;
+        const info = document.getElementById('questionCountInfo');
+        if (count < 5) {
+            info.textContent = `Tässä kategoriassa on nyt ${count} kysymystä. Kategoria tulee pelattavaksi, kun kysymyksiä on vähintään 5.`;
+            info.style.color = '#ef4444';
+        } else {
+            info.textContent = '';
+        }
+    }
+    document.getElementById('category').addEventListener('change', updateQuestionCountInfo);
+    updateQuestionCountInfo();
+
     document.getElementById('questionForm').addEventListener('submit', (e) => {
         e.preventDefault();
         const categoryId = document.getElementById('category').value;
@@ -294,6 +312,13 @@ function addQuestion() {
         questions[categoryId].push(newQuestion);
         localStorage.setItem('questions', JSON.stringify(questions));
         loadQuestions();
+        // Scroll the questions grid to the bottom so the new question is visible
+        setTimeout(() => {
+            const grid = document.getElementById(`category-${categoryId}`);
+            if (grid) {
+                grid.scrollTop = grid.scrollHeight;
+            }
+        }, 100);
         closeModal();
     });
 }
@@ -402,6 +427,9 @@ function addCategory() {
                     <label for="categoryName">Kategorian nimi</label>
                     <input type="text" id="categoryName" required>
                 </div>
+                <div style="color:#ef4444; font-size:0.95rem; margin-bottom:1rem;">
+                    Kategoria tulee pelattavaksi vasta, kun siihen on lisätty vähintään 5 kysymystä.
+                </div>
                 <div class="modal-actions">
                     <button type="submit" class="btn-primary">Tallenna</button>
                     <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
@@ -420,6 +448,13 @@ function addCategory() {
         categories.push(newCategory);
         localStorage.setItem('categories', JSON.stringify(categories));
         loadCategories();
+        // If the add question modal is open, update its category dropdown
+        const questionCategorySelect = document.querySelector('.modal-content #category');
+        if (questionCategorySelect) {
+            questionCategorySelect.innerHTML = categories.map(cat => `
+                <option value="${cat.id}">${cat.name}</option>
+            `).join('');
+        }
         closeModal();
     });
 }
@@ -559,22 +594,6 @@ function editUser(userId) {
                 <div class="form-group">
                     <label for="password">Salasana</label>
                     <div class="password-container">
-                        <input type="password" id="password" placeholder="Jätä tyhjäksi säilyttääksesi nykyisen">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
-                            👁️
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="role">Rooli</label>
-                    <select id="role" required>
-                        <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>Opettaja</option>
-                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Ylläpitäjä</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-primary">Tallenna</button>
-                    <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
                 </div>
             </form>
         </div>
