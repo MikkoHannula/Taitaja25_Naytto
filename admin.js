@@ -611,15 +611,58 @@ function saveGameResult(playerName, category, score, total) {
     loadResults();
 }
 
-// Results management
-function loadResults(page = 1) {
-    const resultsPerPage = 10;
-    const start = (page - 1) * resultsPerPage;
-    const end = start + resultsPerPage;
-    const paginatedResults = results.slice(start, end);
+// Track current filter and sort state
+let defaultSort = 'date';
+let currentCategoryFilter = 'all';
 
+// Results management
+function loadResults() {
+    const resultsContent = document.getElementById('results');
+    const categoryButtons = document.createElement('div');
+    categoryButtons.className = 'category-filters';
+    categoryButtons.innerHTML = `
+        <button class="btn-secondary active" onclick="filterResultsByCategory('all')">Kaikki kategoriat</button>
+        ${categories.map(cat => `
+            <button class="btn-secondary" onclick="filterResultsByCategory(${cat.id})">${cat.name}</button>
+        `).join('')}
+    `;
+    resultsContent.appendChild(categoryButtons);
+    filterResultsByCategory(currentCategoryFilter, defaultSort);
+}
+
+function filterResultsByCategory(categoryId, sortBy = defaultSort) {
+    currentCategoryFilter = categoryId;
+    let filteredResults = categoryId === 'all' 
+        ? results 
+        : results.filter(r => r.categoryId === categoryId);
+    if (sortBy) {
+        filteredResults = sortResultsArray(filteredResults, sortBy);
+    }
+    displayResults(filteredResults);
+}
+
+function sortResults(criteria) {
+    defaultSort = criteria;
+    filterResultsByCategory(currentCategoryFilter, criteria);
+}
+
+function sortResultsArray(resultsArray, criteria) {
+    let sortedResults = [...resultsArray];
+    if (criteria === 'score') {
+        sortedResults.sort((a, b) => {
+            const aScore = typeof a.score === 'string' ? parseInt(a.score) : a.score;
+            const bScore = typeof b.score === 'string' ? parseInt(b.score) : b.score;
+            return bScore - aScore;
+        });
+    } else if (criteria === 'date') {
+        sortedResults.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+    return sortedResults;
+}
+
+function displayResults(resultsToDisplay) {
     const tbody = document.getElementById('resultsTableBody');
-    tbody.innerHTML = paginatedResults.map(result => `
+    tbody.innerHTML = resultsToDisplay.map(result => `
         <tr>
             <td>${result.name}</td>
             <td>${result.category}</td>
@@ -627,31 +670,6 @@ function loadResults(page = 1) {
             <td>${result.date}</td>
         </tr>
     `).join('');
-
-    // Update pagination
-    const totalPages = Math.ceil(results.length / resultsPerPage);
-    const pagination = document.getElementById('resultsPagination');
-    pagination.innerHTML = `
-        ${Array.from({length: totalPages}, (_, i) => `
-            <button class="${page === i + 1 ? 'active' : ''}" 
-                    onclick="loadResults(${i + 1})">
-                ${i + 1}
-            </button>
-        `).join('')}
-    `;
-}
-
-function sortResults(by) {
-    results.sort((a, b) => {
-        if (by === 'score') {
-            const scoreA = parseInt(a.score);
-            const scoreB = parseInt(b.score);
-            return scoreB - scoreA;
-        } else {
-            return new Date(b.date) - new Date(a.date);
-        }
-    });
-    loadResults();
 }
 
 // Utility functions
