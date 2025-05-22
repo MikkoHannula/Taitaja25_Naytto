@@ -101,53 +101,35 @@
                     <label for="password">Salasana</label>
                     <div class="password-container">
                         <input type="password" id="password" name="password" required>
-                        <button type="button" class="password-toggle" onclick="togglePassword()">
-                            👁️
-                        </button>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
                     </div>
                 </div>
-                <div id="errorMessage" class="error-message">
-                    Väärä käyttäjätunnus tai salasana
-                </div>
+                <div id="errorMessage" class="error-message">Väärä käyttäjätunnus tai salasana</div>
                 <button type="submit" class="btn-primary">Kirjaudu</button>
             </form>
             <a href="index.html" class="back-link">← Takaisin etusivulle</a>
         </div>
     </main>
     <script>
-        // Lataa mahdolliset käyttäjätiedot paikallisvarastosta
-        // ja lisää oletuskäyttäjät, jos niitä ei ole
         if (!localStorage.getItem('users')) {
             const defaultUsers = [
                 { id: 1, username: 'Pasi', password: 'Taitaja25!', role: 'admin' }
             ];
             localStorage.setItem('users', JSON.stringify(defaultUsers));
         }
-
-        // Onko käyttäjä jo kirjautunut sisään?
         if (sessionStorage.getItem('isLoggedIn')) {
             window.location.href = 'admin.html';
         }
-
         function togglePassword() {
             const passwordInput = document.getElementById('password');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-            } else {
-                passwordInput.type = 'password';
-            }
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
         }
-
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
-            // Hae käyttäjätiedot paikallisvarastosta
-            // ja tarkista, onko käyttäjätunnus ja salasana oikein
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const user = users.find(u => u.username === username && u.password === password);
-
             if (user) {
                 sessionStorage.setItem('isLoggedIn', 'true');
                 sessionStorage.setItem('teacherName', username);

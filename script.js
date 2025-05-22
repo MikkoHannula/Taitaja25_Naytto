@@ -2,17 +2,12 @@
 const gameState = {
     teacher: null,
     category: null,
-    questionCount: 10, // kysymysten määrän oletusarvo
+    questionCount: 10,
     currentQuestion: 0,
     score: 0,
     questions: []
 };
-
-// Mock dataa testaamiseen (korvataan oikeilla tiedoilla tuotannossa)
-const mockTeachers = [
-    { id: 1, name: "Pasi" }
-];
-
+const mockTeachers = [ { id: 1, name: "Pasi" } ];
 const mockCategories = [
     { id: 1, name: "Historia" },
     { id: 2, name: "Matematiikka" },
@@ -99,7 +94,7 @@ const mockQuestions = {
             correctAnswer: 0
         }
     ],
-    2: [ // Matematiikka (((AI:n tekemät kysymykset)))
+    2: [ // Matematiikka
         {
             question: "Mikä on 7 x 8?",
             options: ["54", "56", "58", "52"],
@@ -176,7 +171,7 @@ const mockQuestions = {
             correctAnswer: 1
         }
     ],
-    3: [ // Tietotekniikka (((AI:n tekemät kysymykset)))
+    3: [ // Tietotekniikka
         {
             question: "Mikä seuraavista ei ole ohjelmointikieli?",
             options: ["Python", "Java", "Router", "JavaScript"],
@@ -255,34 +250,24 @@ const mockQuestions = {
     ]
 };
 
-// Event Listenerit
-document.addEventListener('DOMContentLoaded', () => {
-    const playNowBtn = document.getElementById('playNowBtn');
-    const loginLink = document.querySelector('.login-link');
-
-    playNowBtn.addEventListener('click', startGame);
-    loginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'login.html';  // muutos '/admin' to 'login.html'
-    });
-});
-
+// Utility functions
 function getCategories() {
     const allCategories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
     const allQuestions = JSON.parse(localStorage.getItem('questions')) || mockQuestions;
-    // Näytä vain kategoriat, joissa on vähintään 5 kysymystä
     return allCategories.filter(cat => (allQuestions[cat.id] || []).length >= 5);
 }
-
 function getQuestions() {
     return JSON.parse(localStorage.getItem('questions')) || mockQuestions;
 }
-
-// Hae opettajat paikallisesta tallennustilasta tai käytä mock-dataa
 function getTeachers() {
     return JSON.parse(localStorage.getItem('teachers')) || mockTeachers;
 }
+function getRandomQuestions(questions, count) {
+    const shuffled = [...questions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
 
+// Game setup and flow
 function startGame() {
     const categories = getCategories();
     const teachers = getTeachers();
@@ -326,7 +311,6 @@ function startGame() {
 
     document.body.appendChild(overlay);
 
-    // Lisää tyylit
     const style = document.createElement('style');
     style.textContent = `
         .game-setup-overlay {
@@ -398,13 +382,11 @@ function startGame() {
     `;
     document.head.appendChild(style);
 
-    // Lisää event listener sulku painikkeelle
     const closeBtn = overlay.querySelector('#closeSetup');
     closeBtn.addEventListener('click', () => {
         document.body.removeChild(overlay);
     });
 
-    // Lisää event listener pelin aloitus painikkeelle
     const startGameBtn = overlay.querySelector('#startGameBtn');
     startGameBtn.addEventListener('click', () => {
         const teacherSelect = document.getElementById('teacher');
@@ -423,14 +405,12 @@ function startGame() {
         gameState.teacher = teacherSelect.value;
         gameState.category = categorySelect.value;
         gameState.questionCount = parseInt(questionCountSelect.value);
-        // Poista overlay ja aloita peli
         document.body.removeChild(overlay);
         loadGame();
     });
 }
 
 function loadGame() {
-    // Tyhjennä pääsivu
     const main = document.querySelector('main');
     main.innerHTML = `
         <div class="game-container">
@@ -445,7 +425,6 @@ function loadGame() {
         </div>
     `;
 
-    // Lisätään tyylit containereille
     const style = document.createElement('style');
     style.textContent = `
         .game-container {
@@ -474,27 +453,18 @@ function loadGame() {
     `;
     document.head.appendChild(style);
 
-    // Lisätään exit painike-toiminnallisuus
-    // Poistetaan peli ja palataan etusivulle
     document.getElementById('exitGame').addEventListener('click', () => {
         if (confirm('Haluatko varmasti poistua? Edistymistäsi ei tallenneta.')) {
             window.location.href = 'index.html';
         }
     });
 
-    // Lataa kysymykset valitusta kategoriasta ja kysymysten määrästä
-    // Hae kaikki kysymykset paikallisesta tallennustilasta tai käytä mock-dataa
     const allQuestions = getQuestions();
     gameState.questions = getRandomQuestions(allQuestions[gameState.category], gameState.questionCount);
     gameState.currentQuestion = 0;
     gameState.score = 0;
     
     displayQuestion();
-}
-
-function getRandomQuestions(questions, count) {
-    const shuffled = [...questions].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
 }
 
 function displayQuestion() {
@@ -517,12 +487,9 @@ function displayQuestion() {
         <div id="feedback" class="feedback"></div>
     `;
 
-    // Päivitä kysymysnumero ja pistetiedot
     document.getElementById('questionNumber').textContent = gameState.currentQuestion + 1;
     document.getElementById('scoreDisplay').textContent = gameState.score;
 
-    // Lisää event listener valintapainikkeille
-    // Poista kaikki vanhat event listenerit
     const optionButtons = questionContainer.querySelectorAll('.option-btn');
     optionButtons.forEach(button => {
         button.addEventListener('click', handleAnswer);
@@ -535,7 +502,6 @@ function showFeedback(isCorrect) {
     feedbackDiv.textContent = isCorrect ? 'Oikein!' : 'Väärin!';
     
     const questionContainer = document.getElementById('questionContainer');
-    // Poista
     const existingFeedback = questionContainer.querySelector('.feedback-message');
     if (existingFeedback) {
         existingFeedback.remove();
@@ -554,7 +520,6 @@ function handleAnswer(event) {
         document.getElementById('scoreDisplay').textContent = gameState.score;
     }
 
-    // Disable all buttons
     const buttons = document.querySelectorAll('.option-btn');
     buttons.forEach(button => {
         button.disabled = true;
@@ -567,10 +532,8 @@ function handleAnswer(event) {
         }
     });
 
-    // Show feedback message
     showFeedback(isCorrect);
 
-    // Proceed to next question after delay
     setTimeout(() => {
         gameState.currentQuestion++;
         
@@ -602,7 +565,6 @@ function showGameOver() {
         </div>
     `;
 
-    // Add game over styles
     const style = document.createElement('style');
     style.textContent = `
         .game-over {
@@ -726,7 +688,6 @@ function showGameOver() {
     `;
     document.head.appendChild(style);
 
-    // Add event listeners for the game over buttons
     document.getElementById('saveScore').addEventListener('click', saveHighScore);
     document.getElementById('playAgain').addEventListener('click', () => {
         location.reload();
@@ -740,30 +701,23 @@ function saveHighScore() {
         return;
     }
 
-    // Get the category name and id from mockCategories
     const category = mockCategories.find(cat => cat.id === parseInt(gameState.category));
-
-    // Get existing results or initialize empty array
     let results = JSON.parse(localStorage.getItem('results')) || [];
     
-    // Add new result
     const newResult = {
         name: playerName,
         category: category.name,
-        categoryId: category.id, // Save categoryId for filtering
+        categoryId: category.id,
         score: `${gameState.score}/${gameState.questions.length}`,
-        scoreValue: gameState.score, // For easier sorting
+        scoreValue: gameState.score,
         total: gameState.questions.length,
         date: new Date().toISOString().split('T')[0]
     };
     results.push(newResult);
 
-    // Save to localStorage
     localStorage.setItem('results', JSON.stringify(results));
-    // Save last result to sessionStorage for ranking
     sessionStorage.setItem('lastQuizResult', JSON.stringify(newResult));
 
-    // Show animated confirmation text instead of alert
     let nameInputDiv = document.querySelector('.name-input');
     let existingMsg = document.getElementById('scoreSavedMsg');
     if (existingMsg) existingMsg.remove();
@@ -778,7 +732,6 @@ function saveHighScore() {
     nameInputDiv.appendChild(msg);
     setTimeout(() => { msg.style.opacity = '1'; }, 50);
 
-    // Add 'View My Ranking' button
     let rankingBtn = document.getElementById('viewRankingBtn');
     if (!rankingBtn) {
         rankingBtn = document.createElement('button');
@@ -792,26 +745,21 @@ function saveHighScore() {
 }
 
 function showMyRanking() {
-    // Get last result and all results for the same category
     const lastResult = JSON.parse(sessionStorage.getItem('lastQuizResult'));
     if (!lastResult) return;
     const allResults = JSON.parse(localStorage.getItem('results')) || [];
-    // Filter by category
     const categoryResults = allResults.filter(r => r.categoryId === lastResult.categoryId);
-    // Sort by score (descending), then by date (ascending)
     categoryResults.sort((a, b) => {
         const aScore = typeof a.scoreValue === 'number' ? a.scoreValue : parseInt(a.score);
         const bScore = typeof b.scoreValue === 'number' ? b.scoreValue : parseInt(b.score);
         if (bScore !== aScore) return bScore - aScore;
         return new Date(a.date) - new Date(b.date);
     });
-    // Find this user's result index (first match by name, score, date)
     const myIndex = categoryResults.findIndex(r =>
         r.name === lastResult.name &&
         r.score === lastResult.score &&
         r.date === lastResult.date
     );
-    // Show modal with ranking
     let modal = document.getElementById('rankingModal');
     if (modal) modal.remove();
     modal = document.createElement('div');
@@ -829,4 +777,19 @@ function showMyRanking() {
     document.getElementById('closeRankingModal').onclick = function() {
         modal.remove();
     };
+}
+
+// DOMContentLoaded event
+if (document.getElementById('playNowBtn')) {
+    document.addEventListener('DOMContentLoaded', () => {
+        const playNowBtn = document.getElementById('playNowBtn');
+        const loginLink = document.querySelector('.login-link');
+        playNowBtn.addEventListener('click', startGame);
+        if (loginLink) {
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'login.html';
+            });
+        }
+    });
 }

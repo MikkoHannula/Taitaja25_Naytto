@@ -1,12 +1,8 @@
-// Get käyttäjä rooli sessiosta
+// User role and session check
 const userRole = sessionStorage.getItem('userRole');
-
-// Tarkistetaan onko käyttäjä kirjautunut sisään
-// Jos ei, ohjataan kirjautumissivulle
 if (!sessionStorage.getItem('isLoggedIn')) {
     window.location.href = 'login.html';
 } else if (userRole !== 'admin') {
-    // Piilotetaan admin-toiminnot, jos käyttäjä ei ole admin
     document.querySelector('[data-tab="users"]').style.display = 'none';
     document.getElementById('users').style.display = 'none';
 }
@@ -61,7 +57,6 @@ function loadQuestions() {
         // Näytä kategoria vain, jos siinä on kysymyksiä
         // Jos kysymyksiä ei ole, palauta tyhjää
         if (categoryQuestions.length === 0) return '';
-        
         return `
             <div class="category-section">
                 <div class="category-header" onclick="toggleCategory(${category.id})">
@@ -99,129 +94,26 @@ function loadQuestions() {
         const style = document.createElement('style');
         style.id = 'categoryStyles';
         style.textContent = `
-            .category-section {
-                margin-bottom: 1rem;
-                background: var(--container-bg);
-                border-radius: 1rem;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                border: 1px solid var(--border-color);
-                overflow: hidden;
-            }
-
-            .category-header {
-                padding: 1.25rem 1.5rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                background: var(--card-bg);
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .category-header:hover {
-                background-color: var(--hover-color);
-            }
-
-            .header-content {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
-
-            .folder-icon {
-                font-size: 1.5rem;
-                transition: transform 0.3s ease;
-            }
-
-            .category-header.open .folder-icon {
-                transform: rotate(-5deg);
-            }
-
-            .question-count {
-                color: #6b7280;
-                font-size: 0.9rem;
-                font-weight: 500;
-            }
-
-            .category-header h2 {
-                color: var(--primary-color);
-                margin: 0;
-                flex-grow: 1;
-                font-size: 1.25rem;
-            }
-
-            .questions-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 1.25rem;
-                padding: 1.5rem;
-                border-top: 1px solid var(--border-color);
-                opacity: 0;
-                max-height: 80px;
-                overflow-y: auto;
-                transition: all 0.3s ease;
-            }
-
-            .questions-grid.open {
-                opacity: 1;
-                max-height: 1200px;
-            }
-
-            .question-item {
-                background: var(--background-color);
-                padding: 1.25rem;
-                border-radius: 0.75rem;
-                border: 1px solid var(--border-color);
-                transition: all 0.2s ease;
-            }
-
-            .question-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            }
-
-            .question-item h3 {
-                font-size: 1.1rem;
-                margin-bottom: 1rem;
-                color: var(--text-color);
-            }
-
-            .options {
-                margin-bottom: 1.25rem;
-            }
-
-            .option {
-                padding: 0.75rem;
-                margin: 0.5rem 0;
-                border-radius: 0.5rem;
-                background: white;
-                border: 1px solid var(--border-color);
-                transition: all 0.2s ease;
-            }
-
-            .option.correct {
-                background: #ecfdf5;
-                border-color: var(--primary-color);
-                color: var(--secondary-color);
-            }
-
-            .question-actions {
-                display: flex;
-                gap: 0.5rem;
-                margin-top: 1rem;
-            }
-
-            .question-actions button {
-                flex: 1;
-            }
-
-            .btn-danger {
-                background-color: #fee2e2;
-                color: #dc2626;
-                border: 1px solid #fecaca;
-            }
-
-            .btn-danger:hover {
-                background-color: #fecaca;
-            }
+            .category-section { margin-bottom: 1rem; background: var(--container-bg); border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); overflow: hidden; }
+            .category-header { padding: 1.25rem 1.5rem; cursor: pointer; transition: all 0.3s ease; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+            .category-header:hover { background-color: var(--hover-color); }
+            .header-content { display: flex; align-items: center; gap: 1rem; }
+            .folder-icon { font-size: 1.5rem; transition: transform 0.3s ease; }
+            .category-header.open .folder-icon { transform: rotate(-5deg); }
+            .question-count { color: #6b7280; font-size: 0.9rem; font-weight: 500; }
+            .category-header h2 { color: var(--primary-color); margin: 0; flex-grow: 1; font-size: 1.25rem; }
+            .questions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; padding: 1.5rem; border-top: 1px solid var(--border-color); opacity: 0; max-height: 80px; overflow-y: auto; transition: all 0.3s ease; }
+            .questions-grid.open { opacity: 1; max-height: 1200px; }
+            .question-item { background: var(--background-color); padding: 1.25rem; border-radius: 0.75rem; border: 1px solid var(--border-color); transition: all 0.2s ease; }
+            .question-item:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            .question-item h3 { font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-color); }
+            .options { margin-bottom: 1.25rem; }
+            .option { padding: 0.75rem; margin: 0.5rem 0; border-radius: 0.5rem; background: white; border: 1px solid var(--border-color); transition: all 0.2s ease; }
+            .option.correct { background: #ecfdf5; border-color: var(--primary-color); color: var(--secondary-color); }
+            .question-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+            .question-actions button { flex: 1; }
+            .btn-danger { background-color: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+            .btn-danger:hover { background-color: #fecaca; }
         `;
         document.head.appendChild(style);
     }
@@ -395,7 +287,6 @@ function editQuestion(categoryId, index) {
             questions[newCategoryId] = [];
         }
         questions[newCategoryId].push(updatedQuestion);
-        
         localStorage.setItem('questions', JSON.stringify(questions));
         loadQuestions();
         closeModal();
@@ -608,6 +499,22 @@ function editUser(userId) {
                 <div class="form-group">
                     <label for="password">Salasana</label>
                     <div class="password-container">
+                        <input type="password" id="password">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="role">Rooli</label>
+                    <select id="role" required>
+                        <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>Opettaja</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Ylläpitäjä</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Tallenna</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Peruuta</button>
                 </div>
             </form>
         </div>
@@ -744,11 +651,7 @@ function loadResults() {
 // Näytä tai piilota kysymysosion sisältö
 window.toggleAccordion = function(sectionId) {
     const content = document.getElementById(`accordion-${sectionId}`);
-    if (content.style.display === 'block') {
-        content.style.display = 'none';
-    } else {
-        content.style.display = 'block';
-    }
+    content.style.display = content.style.display === 'block' ? 'none' : 'block';
 };
 
 window.sortCategoryResults = function(sectionId, sortType) {
@@ -812,37 +715,17 @@ function closeModal() {
 
 function togglePasswordVisibility(inputId) {
     const passwordInput = document.getElementById(inputId);
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-    } else {
-        passwordInput.type = 'password';
-    }
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
 }
 
-// Lisätään CSS:ää
+// Accordion CSS
 if (!document.getElementById('accordionStyles')) {
     const style = document.createElement('style');
     style.id = 'accordionStyles';
     style.textContent = `
-        .accordion-btn {
-            width: 100%;
-            text-align: left;
-            padding: 1rem;
-            font-size: 1.1rem;
-            background: #f1f5f9;
-            border: none;
-            border-bottom: 1px solid #e5e7eb;
-            cursor: pointer;
-            outline: none;
-            transition: background 0.2s;
-        }
-        .accordion-btn:hover {
-            background: #e2e8f0;
-        }
-        .accordion-content {
-            padding: 1rem 0;
-            background: white;
-        }
+        .accordion-btn { width: 100%; text-align: left; padding: 1rem; font-size: 1.1rem; background: #f1f5f9; border: none; border-bottom: 1px solid #e5e7eb; cursor: pointer; outline: none; transition: background 0.2s; }
+        .accordion-btn:hover { background: #e2e8f0; }
+        .accordion-content { padding: 1rem 0; background: white; }
     `;
     document.head.appendChild(style);
 }

@@ -1,3 +1,4 @@
+
 :root {
     --primary-color: #10b981;
     --secondary-color: #059669;
@@ -5,7 +6,7 @@
     --background-color: #f0f9ff;
     --border-color: #e2e8f0;
     --hover-color: #f1f5f9;
-    --container-bg: #f8fafc;  /* Updated to cool gray */
+    --container-bg: #f8fafc;
     --card-bg: #ffffff;
 }
 
@@ -296,15 +297,12 @@ footer {
     .hero h1 {
         font-size: 2rem;
     }
-    
     .hero p {
         font-size: 1rem;
     }
-    
     main {
         padding: 1rem;
     }
-    
     .btn-primary,
     .btn-secondary {
         width: 100%;
