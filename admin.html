@@ -420,7 +420,7 @@
         // Ensure the "Kaikki kategoriat" accordion is closed when entering the Tulokset tab
         function closeAllCategoriesAccordion() {
             var accordion = document.getElementById('allCategoriesAccordion');
-            if (accordion) accordion.open = false;
+            if (accordion) accordion.removeAttribute('open');
         }
 
         // Add event listener to the Tulokset tab button
@@ -428,6 +428,8 @@
         if (resultsTabBtn) {
             resultsTabBtn.addEventListener('click', closeAllCategoriesAccordion);
         }
+        // Also close on page load (in case it's open by default)
+        document.addEventListener('DOMContentLoaded', closeAllCategoriesAccordion);
     </script>
 </body>
 </html>
