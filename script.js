@@ -1,14 +1,14 @@
-// Game state
+// Pelin aloitus ja kysymysten käsittely
 const gameState = {
     teacher: null,
     category: null,
-    questionCount: 10, // Default question count
+    questionCount: 10, // kysymysten määrän oletusarvo
     currentQuestion: 0,
     score: 0,
     questions: []
 };
 
-// Mock data for testing (replace with actual data later)
+// Mock dataa testaamiseen (korvataan oikeilla tiedoilla tuotannossa)
 const mockTeachers = [
     { id: 1, name: "Pasi" }
 ];
@@ -19,7 +19,8 @@ const mockCategories = [
     { id: 3, name: "Tietotekniikka" }
 ];
 
-// Mock questions for testing
+// Mock kysymyksiä
+// Korvataan oikeilla kysymyksillä tuotannossa (((AI:n tekemät kysymykset)))
 const mockQuestions = {
     1: [ // Historia
         {
@@ -98,7 +99,7 @@ const mockQuestions = {
             correctAnswer: 0
         }
     ],
-    2: [ // Matematiikka
+    2: [ // Matematiikka (((AI:n tekemät kysymykset)))
         {
             question: "Mikä on 7 x 8?",
             options: ["54", "56", "58", "52"],
@@ -175,7 +176,7 @@ const mockQuestions = {
             correctAnswer: 1
         }
     ],
-    3: [ // Tietotekniikka
+    3: [ // Tietotekniikka (((AI:n tekemät kysymykset)))
         {
             question: "Mikä seuraavista ei ole ohjelmointikieli?",
             options: ["Python", "Java", "Router", "JavaScript"],
@@ -254,7 +255,7 @@ const mockQuestions = {
     ]
 };
 
-// Event Listeners
+// Event Listenerit
 document.addEventListener('DOMContentLoaded', () => {
     const playNowBtn = document.getElementById('playNowBtn');
     const loginLink = document.querySelector('.login-link');
@@ -262,14 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
     playNowBtn.addEventListener('click', startGame);
     loginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = 'login.html';  // Changed from '/admin' to 'login.html'
+        window.location.href = 'login.html';  // muutos '/admin' to 'login.html'
     });
 });
 
 function getCategories() {
     const allCategories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
     const allQuestions = JSON.parse(localStorage.getItem('questions')) || mockQuestions;
-    // Only return categories with at least 5 questions
+    // Näytä vain kategoriat, joissa on vähintään 5 kysymystä
     return allCategories.filter(cat => (allQuestions[cat.id] || []).length >= 5);
 }
 
@@ -277,7 +278,7 @@ function getQuestions() {
     return JSON.parse(localStorage.getItem('questions')) || mockQuestions;
 }
 
-// Get teachers from localStorage or use mockTeachers
+// Hae opettajat paikallisesta tallennustilasta tai käytä mock-dataa
 function getTeachers() {
     return JSON.parse(localStorage.getItem('teachers')) || mockTeachers;
 }
@@ -325,7 +326,7 @@ function startGame() {
 
     document.body.appendChild(overlay);
 
-    // Add styles for the overlay
+    // Lisää tyylit
     const style = document.createElement('style');
     style.textContent = `
         .game-setup-overlay {
@@ -397,13 +398,13 @@ function startGame() {
     `;
     document.head.appendChild(style);
 
-    // Add event listener for the close button
+    // Lisää event listener sulku painikkeelle
     const closeBtn = overlay.querySelector('#closeSetup');
     closeBtn.addEventListener('click', () => {
         document.body.removeChild(overlay);
     });
 
-    // Add event listener for the start game button
+    // Lisää event listener pelin aloitus painikkeelle
     const startGameBtn = overlay.querySelector('#startGameBtn');
     startGameBtn.addEventListener('click', () => {
         const teacherSelect = document.getElementById('teacher');
@@ -422,14 +423,14 @@ function startGame() {
         gameState.teacher = teacherSelect.value;
         gameState.category = categorySelect.value;
         gameState.questionCount = parseInt(questionCountSelect.value);
-        // Remove the overlay and start the actual game
+        // Poista overlay ja aloita peli
         document.body.removeChild(overlay);
         loadGame();
     });
 }
 
 function loadGame() {
-    // Clear the main content
+    // Tyhjennä pääsivu
     const main = document.querySelector('main');
     main.innerHTML = `
         <div class="game-container">
@@ -444,7 +445,7 @@ function loadGame() {
         </div>
     `;
 
-    // Add game container styles
+    // Lisätään tyylit containereille
     const style = document.createElement('style');
     style.textContent = `
         .game-container {
@@ -473,14 +474,16 @@ function loadGame() {
     `;
     document.head.appendChild(style);
 
-    // Add exit button functionality
+    // Lisätään exit painike-toiminnallisuus
+    // Poistetaan peli ja palataan etusivulle
     document.getElementById('exitGame').addEventListener('click', () => {
         if (confirm('Haluatko varmasti poistua? Edistymistäsi ei tallenneta.')) {
             window.location.href = 'index.html';
         }
     });
 
-    // Load questions for the selected category
+    // Lataa kysymykset valitusta kategoriasta ja kysymysten määrästä
+    // Hae kaikki kysymykset paikallisesta tallennustilasta tai käytä mock-dataa
     const allQuestions = getQuestions();
     gameState.questions = getRandomQuestions(allQuestions[gameState.category], gameState.questionCount);
     gameState.currentQuestion = 0;
@@ -514,11 +517,12 @@ function displayQuestion() {
         <div id="feedback" class="feedback"></div>
     `;
 
-    // Update progress
+    // Päivitä kysymysnumero ja pistetiedot
     document.getElementById('questionNumber').textContent = gameState.currentQuestion + 1;
     document.getElementById('scoreDisplay').textContent = gameState.score;
 
-    // Add event listeners to option buttons
+    // Lisää event listener valintapainikkeille
+    // Poista kaikki vanhat event listenerit
     const optionButtons = questionContainer.querySelectorAll('.option-btn');
     optionButtons.forEach(button => {
         button.addEventListener('click', handleAnswer);
@@ -531,7 +535,7 @@ function showFeedback(isCorrect) {
     feedbackDiv.textContent = isCorrect ? 'Oikein!' : 'Väärin!';
     
     const questionContainer = document.getElementById('questionContainer');
-    // Remove any existing feedback
+    // Poista
     const existingFeedback = questionContainer.querySelector('.feedback-message');
     if (existingFeedback) {
         existingFeedback.remove();
@@ -697,6 +701,28 @@ function showGameOver() {
         .feedback-message.incorrect {
             color: #ef4444;
         }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
     `;
     document.head.appendChild(style);
 
@@ -726,12 +752,16 @@ function saveHighScore() {
         category: category.name,
         categoryId: category.id, // Save categoryId for filtering
         score: `${gameState.score}/${gameState.questions.length}`,
+        scoreValue: gameState.score, // For easier sorting
+        total: gameState.questions.length,
         date: new Date().toISOString().split('T')[0]
     };
     results.push(newResult);
 
     // Save to localStorage
     localStorage.setItem('results', JSON.stringify(results));
+    // Save last result to sessionStorage for ranking
+    sessionStorage.setItem('lastQuizResult', JSON.stringify(newResult));
 
     // Show animated confirmation text instead of alert
     let nameInputDiv = document.querySelector('.name-input');
@@ -747,6 +777,56 @@ function saveHighScore() {
     msg.style.transition = 'opacity 0.7s';
     nameInputDiv.appendChild(msg);
     setTimeout(() => { msg.style.opacity = '1'; }, 50);
-    // Redirect after 1.5s
-    setTimeout(() => { location.href = 'index.html'; }, 1500);
+
+    // Add 'View My Ranking' button
+    let rankingBtn = document.getElementById('viewRankingBtn');
+    if (!rankingBtn) {
+        rankingBtn = document.createElement('button');
+        rankingBtn.id = 'viewRankingBtn';
+        rankingBtn.className = 'btn-secondary';
+        rankingBtn.textContent = 'Näytä sijoitukseni';
+        rankingBtn.style.marginTop = '1.5rem';
+        nameInputDiv.appendChild(rankingBtn);
+        rankingBtn.addEventListener('click', showMyRanking);
+    }
+}
+
+function showMyRanking() {
+    // Get last result and all results for the same category
+    const lastResult = JSON.parse(sessionStorage.getItem('lastQuizResult'));
+    if (!lastResult) return;
+    const allResults = JSON.parse(localStorage.getItem('results')) || [];
+    // Filter by category
+    const categoryResults = allResults.filter(r => r.categoryId === lastResult.categoryId);
+    // Sort by score (descending), then by date (ascending)
+    categoryResults.sort((a, b) => {
+        const aScore = typeof a.scoreValue === 'number' ? a.scoreValue : parseInt(a.score);
+        const bScore = typeof b.scoreValue === 'number' ? b.scoreValue : parseInt(b.score);
+        if (bScore !== aScore) return bScore - aScore;
+        return new Date(a.date) - new Date(b.date);
+    });
+    // Find this user's result index (first match by name, score, date)
+    const myIndex = categoryResults.findIndex(r =>
+        r.name === lastResult.name &&
+        r.score === lastResult.score &&
+        r.date === lastResult.date
+    );
+    // Show modal with ranking
+    let modal = document.getElementById('rankingModal');
+    if (modal) modal.remove();
+    modal = document.createElement('div');
+    modal.id = 'rankingModal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content" style="text-align:center;">
+            <h2>Sijoituksesi kategoriassa: ${lastResult.category}</h2>
+            <p><strong>Pisteesi:</strong> ${lastResult.score}</p>
+            <p><strong>Sijoitus:</strong> ${myIndex + 1} / ${categoryResults.length}</p>
+            <button id="closeRankingModal" class="btn-primary" style="margin-top:1.5rem;">Sulje</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('closeRankingModal').onclick = function() {
+        modal.remove();
+    };
 }

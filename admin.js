@@ -1,16 +1,17 @@
-// Get user role from session
+// Get käyttäjä rooli sessiosta
 const userRole = sessionStorage.getItem('userRole');
 
-// Check if user is logged in and has necessary permissions
+// Tarkistetaan onko käyttäjä kirjautunut sisään
+// Jos ei, ohjataan kirjautumissivulle
 if (!sessionStorage.getItem('isLoggedIn')) {
     window.location.href = 'login.html';
 } else if (userRole !== 'admin') {
-    // Hide the users tab for non-admin users
+    // Piilotetaan admin-toiminnot, jos käyttäjä ei ole admin
     document.querySelector('[data-tab="users"]').style.display = 'none';
     document.getElementById('users').style.display = 'none';
 }
 
-// Initialize data from localStorage or use defaults
+// Ota data localStorage:sta tai käytä mock dataa
 let questions = JSON.parse(localStorage.getItem('questions')) || mockQuestions;
 let categories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
 let results = JSON.parse(localStorage.getItem('results')) || [];
@@ -18,7 +19,7 @@ let users = JSON.parse(localStorage.getItem('users')) || [
     { id: 1, username: 'Pasi', password: 'Taitaja25!', role: 'admin' }
 ];
 
-// Migrate old results to include categoryId if missing
+// Tuo vanha kysymysdata, jos se on olemassa
 function migrateResultsCategoryId() {
     let results = JSON.parse(localStorage.getItem('results')) || [];
     let categories = JSON.parse(localStorage.getItem('categories')) || mockCategories;
@@ -37,7 +38,7 @@ function migrateResultsCategoryId() {
     }
 }
 
-// Tab handling
+// Sivujen hallinta
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -47,16 +48,18 @@ document.querySelectorAll('.tab-button').forEach(button => {
     });
 });
 
-// Question management
+// Kysymysten lataus ja näyttäminen
 function loadQuestions() {
     const questionList = document.getElementById('questionList');
     
-    // Create a section for each category
+    // Tee osio jokaiselle kategorialle
     questionList.innerHTML = categories.map(category => {
-        // Get questions for this category
+        // Hae kysymykset kategoriasta
+        // Jos kysymyksiä ei ole, palauta tyhjää
         const categoryQuestions = questions[category.id] || [];
         
-        // Only show category section if it has questions
+        // Näytä kategoria vain, jos siinä on kysymyksiä
+        // Jos kysymyksiä ei ole, palauta tyhjää
         if (categoryQuestions.length === 0) return '';
         
         return `
@@ -90,7 +93,8 @@ function loadQuestions() {
         `;
     }).join('');
 
-    // Add styles for the new category sections
+    // Lisää tyylit kysymysosioille
+    // Varmista, että tyylit lisätään vain kerran
     if (!document.getElementById('categoryStyles')) {
         const style = document.createElement('style');
         style.id = 'categoryStyles';
@@ -223,17 +227,19 @@ function loadQuestions() {
     }
 }
 
-// Update the toggleCategory function for smooth animations
+// Päivitä kysymysosion tilat
+// Kun käyttäjä klikkaa kategoriaotsikkoa
 function toggleCategory(categoryId) {
     const questionsGrid = document.getElementById(`category-${categoryId}`);
     const categoryHeader = questionsGrid.previousElementSibling;
     const isHidden = !questionsGrid.classList.contains('open');
     
-    // Toggle the open class for animations
+    // Gridin ja otsikon tilan päivitys
     questionsGrid.classList.toggle('open');
     categoryHeader.classList.toggle('open');
     
-    // Update folder icon
+    // päivitä kysymysosion ikoni
+    // Jos kysymysosio on piilotettu, näytä kansi-ikoni
     const folderIcon = categoryHeader.querySelector('.folder-icon');
     folderIcon.textContent = isHidden ? '📂' : '📁';
 }
@@ -282,7 +288,8 @@ function addQuestion() {
 
     document.body.appendChild(modal);
 
-    // Show question count info for selected category
+    // Näytä kysymysosion kysymysten määrä
+    // Kun käyttäjä valitsee kategorian
     function updateQuestionCountInfo() {
         const catId = document.getElementById('category').value;
         const count = (questions[catId] || []).length;
@@ -312,7 +319,8 @@ function addQuestion() {
         questions[categoryId].push(newQuestion);
         localStorage.setItem('questions', JSON.stringify(questions));
         loadQuestions();
-        // Scroll the questions grid to the bottom so the new question is visible
+        // Scrollaa kysymysosion loppuun
+        // Kun kysymys on lisätty
         setTimeout(() => {
             const grid = document.getElementById(`category-${categoryId}`);
             if (grid) {
@@ -379,10 +387,10 @@ function editQuestion(categoryId, index) {
             correctAnswer: parseInt(document.getElementById('correctAnswer').value)
         };
 
-        // Remove from old category
+        // Poista kysymys vanhasta kategoriasta
         questions[categoryId].splice(index, 1);
         
-        // Add to new category
+        // lisää kysymys uuteen kategoriaan
         if (!questions[newCategoryId]) {
             questions[newCategoryId] = [];
         }
@@ -402,7 +410,7 @@ function deleteQuestion(categoryId, index) {
     }
 }
 
-// Category management
+// Kategoriat ja niiden hallinta
 function loadCategories() {
     const categoryList = document.getElementById('categoryList');
     categoryList.innerHTML = categories.map(category => `
@@ -448,7 +456,7 @@ function addCategory() {
         categories.push(newCategory);
         localStorage.setItem('categories', JSON.stringify(categories));
         loadCategories();
-        // If the add question modal is open, update its category dropdown
+        // Jos kysymysten lisäys on käytössä, päivitetään kysymysosion valikko
         const questionCategorySelect = document.querySelector('.modal-content #category');
         if (questionCategorySelect) {
             questionCategorySelect.innerHTML = categories.map(cat => `
@@ -508,7 +516,7 @@ function deleteCategory(categoryId) {
     }
 }
 
-// User management
+// Käyttäjien hallinta
 function loadUsers() {
     const userList = document.getElementById('userList');
     userList.innerHTML = users.map(user => `
@@ -573,7 +581,7 @@ function addUser() {
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
         loadUsers();
-        // --- Add teacher to teachers list if role is teacher ---
+        // --- Lisää opettaja opettajalistaan, jos taso on opettaja ---
         if (newUser.role === 'teacher') {
             let teachers = JSON.parse(localStorage.getItem('teachers')) || [];
             teachers.push({ id: newUser.id, name: newUser.username });
@@ -642,7 +650,7 @@ function deleteUser(userId) {
     }
 }
 
-// Handle game results
+// Pelin tulosten tallennus
 function saveGameResult(playerName, category, score, total) {
     const result = {
         name: playerName,
@@ -655,16 +663,16 @@ function saveGameResult(playerName, category, score, total) {
     loadResults();
 }
 
-// Track current filter and sort state
+// Etsi filteröityjä tuloksia
 let defaultSort = 'date';
 let currentCategoryFilter = 'all';
 
-// Results management
+// Tulosten lataus ja näyttäminen
 function loadResults() {
     const resultsContent = document.getElementById('results');
     resultsContent.innerHTML = '';
 
-    // Helper to create sorting buttons
+    // Järjestysnappien avittaja
     function createSortButtons(sectionId, onSort) {
         const div = document.createElement('div');
         div.className = 'sort-buttons';
@@ -675,7 +683,8 @@ function loadResults() {
         return div;
     }
 
-    // Store sort state for each section
+    // Tallenna tulosten järjestys
+    // Jos ei ole vielä tallennettu, luo uusi objekti
     if (!window.categorySortStates) window.categorySortStates = {};
 
     // Kaikki kategoriat (all results)
@@ -703,7 +712,7 @@ function loadResults() {
     document.getElementById(`sortBtns-${allSectionId}`).appendChild(createSortButtons(allSectionId));
     displayResults(sortResultsArray(results, window.categorySortStates[allSectionId].sort), 'resultsTableBodyAll');
 
-    // Each category separately
+    // Jokainen kategoria erikseen
     categories.forEach(cat => {
         const sectionId = `cat${cat.id}`;
         window.categorySortStates[sectionId] = window.categorySortStates[sectionId] || { sort: 'date' };
@@ -731,7 +740,8 @@ function loadResults() {
     });
 }
 
-// Accordion and sorting logic for global use
+// Haitari ja sen toiminta
+// Näytä tai piilota kysymysosion sisältö
 window.toggleAccordion = function(sectionId) {
     const content = document.getElementById(`accordion-${sectionId}`);
     if (content.style.display === 'block') {
@@ -795,7 +805,7 @@ function sortResultsArray(resultsArray, criteria) {
     return sortedResults;
 }
 
-// Utility functions
+// Aputoiminnallisuuksia
 function closeModal() {
     document.querySelector('.modal').remove();
 }
@@ -809,7 +819,7 @@ function togglePasswordVisibility(inputId) {
     }
 }
 
-// Add minimal CSS for accordion
+// Lisätään CSS:ää
 if (!document.getElementById('accordionStyles')) {
     const style = document.createElement('style');
     style.id = 'accordionStyles';
@@ -837,15 +847,17 @@ if (!document.getElementById('accordionStyles')) {
     document.head.appendChild(style);
 }
 
-// Initialize the admin panel
+// Admin paneelin lataus
 document.addEventListener('DOMContentLoaded', () => {
     migrateResultsCategoryId();
 
-    // Display teacher name
+    // Näytä opettajan nimi
+    // Kun käyttäjä kirjautuu sisään
     const teacherName = sessionStorage.getItem('teacherName');
     document.getElementById('teacherName').textContent = teacherName;
 
-    // Add logout functionality
+    // Lisää uloskirjautumisnappi
+    // Kun käyttäjä on kirjautunut sisään
     document.getElementById('logoutBtn').addEventListener('click', () => {
         sessionStorage.removeItem('isLoggedIn');
         sessionStorage.removeItem('teacherName');
@@ -857,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadResults();
     loadUsers();
 
-    // Add event listeners for add buttons
+    // Lisää event listenerit lisäysnappeihin
     document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
     document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
     document.getElementById('addUserBtn').addEventListener('click', addUser);

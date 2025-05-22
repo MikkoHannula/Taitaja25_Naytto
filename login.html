@@ -115,7 +115,8 @@
         </div>
     </main>
     <script>
-        // Initialize default user if users don't exist in localStorage
+        // Lataa mahdolliset käyttäjätiedot paikallisvarastosta
+        // ja lisää oletuskäyttäjät, jos niitä ei ole
         if (!localStorage.getItem('users')) {
             const defaultUsers = [
                 { id: 1, username: 'Pasi', password: 'Taitaja25!', role: 'admin' }
@@ -123,7 +124,7 @@
             localStorage.setItem('users', JSON.stringify(defaultUsers));
         }
 
-        // Check if already logged in
+        // Onko käyttäjä jo kirjautunut sisään?
         if (sessionStorage.getItem('isLoggedIn')) {
             window.location.href = 'admin.html';
         }
@@ -142,7 +143,8 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Get users from localStorage
+            // Hae käyttäjätiedot paikallisvarastosta
+            // ja tarkista, onko käyttäjätunnus ja salasana oikein
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const user = users.find(u => u.username === username && u.password === password);
 
