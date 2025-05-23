@@ -27,7 +27,7 @@
         .admin-header {
             display: flex;
             flex-direction: row;
-            align-items: center; /* Vertically center children in the header */
+            align-items: center;
             justify-content: space-between;
             gap: 1.2rem;
             flex-wrap: nowrap;
@@ -59,7 +59,7 @@
         }
         .admin-controls {
             display: flex;
-            align-items: center; /* Vertically center all controls/buttons */
+            align-items: center;
             gap: 1.1rem;
             min-width: 0;
             flex: 0 1 auto;
@@ -397,7 +397,7 @@
                 </div>
                 <details id="allCategoriesAccordion">
                     <summary>Kaikki kategoriat</summary>
-                    <!-- ...accordion content... -->
+                    <!-- ...Haitari sisältö... -->
                 </details>
                 <table class="results-table">
                     <thead>
@@ -417,18 +417,18 @@
     <script src="script.js"></script>
     <script src="admin.js"></script>
     <script>
-        // Ensure the "Kaikki kategoriat" accordion is closed when entering the Tulokset tab
+        // Varmista että "Kaikki kategoriat" Haitari on kiinni kun avataan Tulokset tabi
         function closeAllCategoriesAccordion() {
             var accordion = document.getElementById('allCategoriesAccordion');
             if (accordion) accordion.removeAttribute('open');
         }
 
-        // Add event listener to the Tulokset tab button
+        // Lisää event listener Tulokset tabille
         const resultsTabBtn = document.querySelector('.tab-button[data-tab="results"]');
         if (resultsTabBtn) {
             resultsTabBtn.addEventListener('click', closeAllCategoriesAccordion);
         }
-        // Also close on page load (in case it's open by default)
+        // Sulje sivu (Jos se on auki avattaessa)
         document.addEventListener('DOMContentLoaded', closeAllCategoriesAccordion);
     </script>
 </body>
