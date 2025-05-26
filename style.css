@@ -353,6 +353,103 @@ footer {
     color: #ef4444;
 }
 
+/* --- Admin panel header controls: improved responsive fix for small screens --- */
+.admin-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  min-width: 0;
+}
+.admin-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+}
+.admin-nav {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+#logoutBtn {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  min-width: 80px;
+  max-width: 120px;
+  font-size: 0.95rem;
+  padding: 0.32rem 0.7rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 600px) {
+  .admin-header {
+    padding: 0.7rem 0.2rem;
+    gap: 0.3rem;
+  }
+  .admin-controls {
+    gap: 0.3rem;
+  }
+  .admin-nav {
+    gap: 0.2rem;
+  }
+  .tab-button {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 0;
+    width: auto;
+    max-width: 60vw;
+  }
+  #logoutBtn {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 60px;
+    max-width: 80px;
+  }
+  .teacher-name {
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+  }
+}
+@media (max-width: 400px) {
+  .admin-header {
+    gap: 0.1rem;
+  }
+  .admin-controls {
+    gap: 0.1rem;
+  }
+  .admin-nav {
+    gap: 0.1rem;
+  }
+  .tab-button {
+    font-size: 0.8rem;
+    padding: 0.18rem 0.3rem;
+    max-width: 50vw;
+  }
+  #logoutBtn {
+    font-size: 0.8rem;
+    padding: 0.18rem 0.3rem;
+    min-width: 40px;
+    max-width: 60px;
+  }
+  .teacher-name {
+    font-size: 0.8rem;
+    margin-right: 0.2rem;
+  }
+}
+/* End admin header responsive fix */
+
 /* --- Responsive Design for All Screensizes --- */
 @media (max-width: 1200px) {
     main {
